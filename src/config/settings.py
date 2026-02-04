@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
 class Settings:
     """Application settings - reads from environment variables"""
 
@@ -15,15 +16,16 @@ class Settings:
     HOST: str = os.getenv("HOST", "127.0.0.1")
     PORT: int = int(os.getenv("PORT", "8000"))
 
-    #API info(for docs)
-    API_DESCRIPTION:str="""
-    Phishing Detection System API
+    # API info (for docs)
+    API_DESCRIPTION: str = """
+Phishing Detection System API
 
-    This API helps identify fake/phishing websites by analyzing:
-    *Domain similarity and typosquatting
-    *SSL certificate validity
-    *Security headers
-    *Suspicious URL patterns
-    """
+This API helps identify fake/phishing websites by analyzing:
+- Domain similarity and typosquatting
+- SSL certificate validity
+- Security headers
+- Suspicious URL patterns
+"""
+
 
 settings = Settings()
