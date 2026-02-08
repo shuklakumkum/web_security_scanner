@@ -1,0 +1,144 @@
+Day 2 - Domain Analysis Test Results
+=====================================
+
+Test 1: google.com
+Result:
+  - Is Suspicious: False
+  - Matched Domain: 
+  - Similarity: 1.0
+  - Risk Score: 0
+  - Risk Level: Low
+  - Warnings: []
+
+Test 2: amazon.com
+Result:
+  - Is Suspicious: False
+  - Matched Domain: 
+  - Similarity: 1.0
+  - Risk Score: 0
+  - Risk Level: Low
+  - Warnings: []
+
+Test 3: flipkart.com
+Result:
+  - Is Suspicious: False
+  - Matched Domain: 
+  - Similarity: 1.0
+  - Risk Score: 0
+  - Risk Level: Low
+  - Warnings: []
+
+Test 4: facebook.com
+Result:
+  - Is Suspicious: False
+  - Matched Domain: 
+  - Similarity: 1.0
+  - Risk Score: 0
+  - Risk Level: Low
+  - Warnings: []
+
+Test 5: amazom.com
+Result:
+  - Is Suspicious: True
+  - Matched Domain: amazon.com
+  - Similarity: 0.9
+  - Risk Score: 50
+  - Risk Level: Medium
+  - Warnings: []
+
+Test 6: gooogle.com
+Result:
+  - Is Suspicious: True
+  - Matched Domain: google.com
+  - Similarity: 0.95
+  - Risk Score: 50
+  - Risk Level: Medium
+  - Warnings: []
+
+Test 7: faceb00k.com
+Result:
+  - Is Suspicious: True
+  - Matched Domain: facebook.com
+  - Similarity: 0.83
+  - Risk Score: 60
+  - Risk Level: Medium
+  - Warnings: ['Suspicious character substitution']
+
+Test 8: flipkart.co
+Result:
+  - Is Suspicious: True
+  - Matched Domain: flipkart.com
+  - Similarity: 0.96
+  - Risk Score: 50
+  - Risk Level: Medium
+  - Warnings: []
+
+Test 9: amazon-login.com
+Result:
+  - Is Suspicious: False
+  - Matched Domain: 
+  - Similarity: 0.77
+  - Risk Score: 10
+  - Risk Level: Low
+  - Warnings: ['Suspicious keyword: login']
+
+Test 10: secure-flipkart.com
+Result:
+  - Is Suspicious: False
+  - Matched Domain: 
+  - Similarity: 0.77
+  - Risk Score: 10
+  - Risk Level: Low
+  - Warnings: ['Suspicious keyword: secure']
+
+Test 11: paytm-verify-account.com
+Result:
+  - Is Suspicious: False
+  - Matched Domain: 
+  - Similarity: 0.55
+  - Risk Score: 20
+  - Risk Level: Low
+  - Warnings: ['Suspicious keyword: verify', 'Suspicious keyword: account']
+
+Test 12: google-security-alert.com
+Result:
+  - Is Suspicious: False
+  - Matched Domain: 
+  - Similarity: 0.57
+  - Risk Score: 0
+  - Risk Level: Low
+  - Warnings: []
+
+Test 13: amazom-login-verify.xyz
+Result:
+  - Is Suspicious: False
+  - Matched Domain: 
+  - Similarity: 0.44
+  - Risk Score: 30
+  - Risk Level: Low
+  - Warnings: ['Suspicious keyword: login', 'Suspicious keyword: verify', 'Suspicious domain extension: .xyz']
+
+Test 14: secure-amazon-account-update.tk
+Result:
+  - Is Suspicious: False
+  - Matched Domain: 
+  - Similarity: 0.39
+  - Risk Score: 60
+  - Risk Level: Medium
+  - Warnings: ['Multiple dashes detected', 'Suspicious keyword: secure', 'Suspicious keyword: account', 'Suspicious keyword: update', 'Suspicious domain extension: .tk', 'Unusually long domain']
+
+Test 15: faceb00k-security-check-urgent.ml
+Result:
+  - Is Suspicious: False
+  - Matched Domain: 
+  - Similarity: 0.36
+  - Risk Score: 40
+  - Risk Level: Medium
+  - Warnings: ['Multiple dashes detected', 'Suspicious domain extension: .ml', 'Unusually long domain', 'Suspicious character substitution']
+
+SUMMARY:
+--------
+Total Domains Tested: 15
+Safe (0-30): 9
+Medium Risk (31-60): 6
+High Risk (61-100): 0

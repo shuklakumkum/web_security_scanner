@@ -1,47 +1,28 @@
-from pydantic import BaseModel, Field
-from datetime import datetime
-from typing import Optional, Dict, Any
+from pydantic import BaseModel
+from typing import Dict, List
 
 
+# Health endpoint response
 class HealthResponse(BaseModel):
-    """Response model for health check endpoint"""
-    status: str = Field(example="healthy")
-    timestamp: str = Field(example="2024-01-15T10:30:00Z")
-    message: str = Field(example="API is running normally")
+    status: str
+    message: str
 
 
 class DetailedHealthResponse(BaseModel):
-    """Response model for detailed health check"""
     status: str
-    app_name: str
+    message: str
     version: str
-    debug_mode: bool
-    timestamp: str
-    checks: Dict[str, str]
 
 
-class SuccessResponse(BaseModel):
-    """Generic success response wrapper"""
-    success: bool = Field(default=True)
-    message: str
-    data: Optional[Dict[str, Any]] = None
-
-
-# Future use — URL scan ke liye
-class URLScanRequest(BaseModel):
-    """Request model for URL scanning"""
-    url: str = Field(
-        min_length=10,
-        max_length=2048,
-        example="https://amazon.com"
-    )
-
-
-class URLScanResponse(BaseModel):
-    """Response model for URL scan results"""
-    success: bool
+# Day 3 scan response
+class ScanResult(BaseModel):
     url: str
+    domain: str
     is_suspicious: bool
-    risk_score: int = Field(ge=0, le=100)  # 0-100
-    message: str
+    risk_score: int
+    risk_level: str
     timestamp: str
+
+    checks: Dict
+    warnings: List[str]
+    recommendations: List[str]

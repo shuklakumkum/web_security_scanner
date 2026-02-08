@@ -1,0 +1,79 @@
+Day 4 SSL Results
+
+
+URL: https://google.com
+Has HTTPS: True
+SSL Score: 100
+Info: {'issuer': 'Google Trust Services', 'expiry_date': '2026-04-06', 'days_until_expiry': 56, 'subject': '*.google.com'}
+
+
+URL: https://github.com
+Has HTTPS: True
+SSL Score: 100
+Info: {'issuer': 'Sectigo Limited', 'expiry_date': '2026-04-05', 'days_until_expiry': 56, 'subject': 'github.com'}
+
+
+URL: https://amazon.in
+Has HTTPS: True
+SSL Score: 100
+Info: {'issuer': 'Amazon', 'expiry_date': '2026-10-09', 'days_until_expiry': 243, 'subject': '*.cy.peg.a2z.com'}
+
+
+URL: https://wikipedia.org
+Has HTTPS: True
+SSL Score: 80
+Info: {'issuer': "Let's Encrypt", 'expiry_date': '2026-03-08', 'days_until_expiry': 28, 'subject': '*.wikipedia.org'}
+
+
+URL: http://example.com
+Has HTTPS: False
+SSL Score: 0
+Info: {}
+
+
+URL: http://neverssl.com
+Has HTTPS: False
+SSL Score: 0
+Info: {}
+
+
+URL: http://httpforever.com
+Has HTTPS: False
+SSL Score: 0
+Info: {}
+
+
+URL: https://expired.badssl.com
+Has HTTPS: True
+SSL Score: 50
+Info: {'issuer': '', 'expiry_date': '', 'days_until_expiry': -1, 'subject': '', 'error': '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: certificate has expired (_ssl.c:1028)'}
+
+
+URL: https://wrong.host.badssl.com
+Has HTTPS: True
+SSL Score: 50
+Info: {'issuer': '', 'expiry_date': '', 'days_until_expiry': -1, 'subject': '', 'error': "[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: Hostname mismatch, certificate is not valid for 'wrong.host.badssl.com'. (_ssl.c:1028)"}
+
+
+URL: https://self-signed.badssl.com
+Has HTTPS: True
+SSL Score: 50
+Info: {'issuer': '', 'expiry_date': '', 'days_until_expiry': -1, 'subject': '', 'error': '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate (_ssl.c:1028)'}
+
+
+URL: https://goggle.com
+Has HTTPS: True
+SSL Score: 50
+Info: {'issuer': '', 'expiry_date': '', 'days_until_expiry': -1, 'subject': '', 'error': '[Errno 11001] getaddrinfo failed'}
+
+
+URL: http://paypa1.com
+Has HTTPS: False
+SSL Score: 0
+Info: {}
+
+SUMMARY
+Total URLs: 12
+Secure: 4
+Warning: 4
+Insecure: 4
