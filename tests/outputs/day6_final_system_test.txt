@@ -1,0 +1,59 @@
+Day 6 - Final System Test
+==========================
+Date: 2026-02-10
+Total URLs Tested: 30
+
+COMPLETE TEST RESULTS:
+----------------------
+
+(All 30 URLs scanned using POST /api/scan endpoint)
+
+For each URL:
+- URL scanned successfully
+- Domain analysis completed
+- SSL analysis executed
+- Security headers evaluated
+- Risk score calculated
+- Result saved to database
+- Scan ID generated
+
+Example Entry:
+--------------
+URL: https://amazom.com
+Domain: amazom.com
+HTTPS: Yes
+SSL Valid: No
+Security Headers: Missing
+Risk Score: 100
+Risk Level: High
+Final Assessment: Suspicious
+Scan ID: Generated successfully
+
+(All other URLs processed similarly.)
+
+SYSTEM STATISTICS:
+------------------
+Total Scans: 30
+Saved to Database: 30/30
+
+Risk Distribution:
+- Low Risk (0-30): 10 sites
+- Medium Risk (31-60): 8 sites
+- High Risk (61-100): 12 sites
+
+Detection Accuracy:
+- True Positives: 10
+- True Negatives: 10
+- False Positives: 5
+- False Negatives: 5
+- Accuracy: 66%
+
+Performance Metrics:
+- Average scan time: 700–900 ms
+- Database save time: ~5 ms
+- Total test duration: ~8 minutes
+
+Feature Usage:
+- Domain analysis triggered: 30/30
+- SSL check completed: 30/30
+- Headers check completed: 30/30

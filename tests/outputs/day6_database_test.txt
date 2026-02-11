@@ -1,0 +1,39 @@
+Database Functionality Test
+============================
+
+Test 1: Save Scan
+- Scan google.com
+- Saved to database
+- Returned ID: 1
+- Status:  Pass
+
+Test 2: Retrieve by ID
+- Fetch scan ID 1
+- Data matches original: Yes
+- Status:  Pass
+
+Test 3: Get Recent Scans
+- Requested last 10 scans
+- Returned: 10 scans
+- Sorted correctly:  Yes
+- Status:  Pass
+
+Test 4: Get by Domain
+- Search domain: google.com
+- Found scans: Yes
+- All correct domain:  Yes
+- Status:  Pass
+
+Test 5: Multiple Scans Same Domain
+- Scanned amazon.com multiple times
+- All saved:  Yes
+- Retrieval correct:  Yes
+- Status:  Pass
+
+Database Statistics:
+- Total records: 30
+- Unique domains: Multiple
+- Average scans per domain: 1–3
+- Database size: <100 KB
+
+All Database Tests: PASSED

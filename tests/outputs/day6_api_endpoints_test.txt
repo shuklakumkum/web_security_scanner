@@ -1,0 +1,35 @@
+API Endpoints Test
+==================
+
+Endpoint 1: POST /api/scan
+- Tested with 5 URLs
+- All successful:  Yes
+- Returns scan ID:  Yes
+- Average response time: ~800 ms
+
+Endpoint 2: GET /api/scans
+- Returns recent scans: Yes
+- Correct format: Yes
+- Response time: ~10 ms
+
+Endpoint 3: GET /api/scans/{id}
+- Valid ID returns data:  Yes
+- Invalid ID returns 404:  Yes
+- Response time: ~5 ms
+
+Endpoint 4: GET /api/scans/domain/{domain}
+- Returns correct scans: Yes
+- Empty results handled: Yes
+- Response time: ~5 ms
+
+Endpoint 5: GET /health
+- Status:  healthy
+- Response time: ~2 ms
+
+Endpoint 6: POST /api/validate-url
+- Still working:  Yes
+
+Endpoint 7: POST /api/check-domain
+- Still working:  Yes
+
+All Endpoints Status:  OPERATIONAL

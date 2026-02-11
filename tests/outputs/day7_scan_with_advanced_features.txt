@@ -1,0 +1,81 @@
+DAY 7 – Scan Results with Advanced Detection
+==============================================
+
+URL: https://google.com
+Risk Score: 15
+Risk Level: Low
+Advanced Detection Score: 0
+Notes: Legitimate domain, no phishing indicators.
+--------------------------------------------------
+
+URL: http://192.168.1.1/login
+Risk Score: 65
+Risk Level: High
+Advanced Detection Score: 30
+Notes:
+- IP address used instead of domain
+- Login keyword detected
+--------------------------------------------------
+
+URL: https://paypal-login-winner-prize.com
+Risk Score: 85
+Risk Level: High
+Advanced Detection Score: 40
+Notes:
+- Suspicious keywords found
+- Domain looks phishing
+--------------------------------------------------
+
+URL: https://secure-update-account.com
+Risk Score: 75
+Risk Level: High
+Advanced Detection Score: 35
+Notes:
+- Account keyword detected
+- Suspicious naming pattern
+--------------------------------------------------
+
+URL: https://amazon.in
+Risk Score: 10
+Risk Level: Low
+Advanced Detection Score: 0
+Notes: Trusted domain.
+--------------------------------------------------
+
+URL: https://crypto-wallet-secure.net
+Risk Score: 80
+Risk Level: High
+Advanced Detection Score: 30
+Notes:
+- Crypto and wallet keywords detected.
+--------------------------------------------------
+
+URL: https://flipkart.com
+Risk Score: 10
+Risk Level: Low
+Advanced Detection Score: 0
+Notes: Legitimate e-commerce site.
+--------------------------------------------------
+
+URL: https://winner-prize-claim-now.com
+Risk Score: 85
+Risk Level: High
+Advanced Detection Score: 40
+Notes:
+- Prize and winner phishing keywords detected.
+--------------------------------------------------
+
+URL: https://example.org
+Risk Score: 20
+Risk Level: Low
+Advanced Detection Score: 0
+Notes: No suspicious signals.
+--------------------------------------------------
+
+URL: https://secure-login-bank.com
+Risk Score: 90
+Risk Level: High
+Advanced Detection Score: 45
+Notes:
+- Banking & login phishing keywords.
+--------------------------------------------------

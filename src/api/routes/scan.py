@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from datetime import datetime
 from urllib.parse import urlparse
 
@@ -10,17 +10,25 @@ from src.services.domain_checker import (
 )
 from src.services.ssl_checker import analyze_ssl
 from src.services.security_headers import generate_security_score
+from src.services.advanced_detection import advanced_scan  # Day 7
+
+# Database
+from src.services.database import (
+    init_database,
+    save_scan,
+    get_scan_by_id,
+    get_recent_scans,
+    get_scans_by_domain,
+)
 
 router = APIRouter()
 
+# Initialize database
+init_database()
 
-# ---------------- Risk Calculation ----------------
-def calculate_risk(
-    valid_url: bool,
-    typo_detected: bool,
-    patterns: list,
-    https_used: bool
-):
+
+# ---------- Risk Calculation ----------
+def calculate_risk(valid_url, typo_detected, patterns, https_used):
     score = 0
 
     if not valid_url:
@@ -31,7 +39,6 @@ def calculate_risk(
 
     score += len(patterns) * 10
 
-    # No HTTPS penalty
     if not https_used:
         score += 20
 
@@ -46,7 +53,7 @@ def risk_level(score: int):
     return "High"
 
 
-# ---------------- Scan Endpoint ----------------
+# ---------- Scan Endpoint ----------
 @router.post("/scan", response_model=ScanResult)
 def complete_scan(data: dict):
     url = data["url"]
@@ -54,22 +61,26 @@ def complete_scan(data: dict):
     parsed = urlparse(url if "://" in url else f"http://{url}")
     domain = parsed.netloc.replace("www.", "")
 
-    # ---------- Step 1: URL validation ----------
+    # URL validation
     url_result = validate_url(url)
     valid_url = url_result["valid"]
 
-    # ---------- Step 2: Domain similarity ----------
+    # Domain similarity
     domain_result = check_domain_similarity(domain)
     typo_detected = domain_result["is_similar"]
 
-    # ---------- Step 3: Pattern check ----------
+    # Suspicious patterns
     pattern_warnings = check_suspicious_patterns(domain)
 
-    # ---------- Step 4: SSL analysis ----------
+    # SSL analysis
     ssl_result = analyze_ssl(url)
     https_used = ssl_result["has_https"]
 
-    # ---------- Step 5: Base Risk calculation ----------
+    # ---------- Day 7 Advanced Detection ----------
+    advanced_result = advanced_scan(url)
+    advanced_score = advanced_result["advanced_risk_score"]
+
+    # ---------- Base Risk ----------
     score = calculate_risk(
         valid_url,
         typo_detected,
@@ -77,11 +88,14 @@ def complete_scan(data: dict):
         https_used,
     )
 
-    # Extra SSL penalty
+    # Add advanced detection impact
+    score += advanced_score // 2
+
+    # SSL certificate issue
     if https_used and not ssl_result["certificate_valid"]:
         score += 30
 
-    # ---------- Step 6: Security Headers ----------
+    # ---------- Security headers ----------
     headers_result = generate_security_score(url)
 
     headers_present = headers_result.get("headers_present", 0)
@@ -89,10 +103,9 @@ def complete_scan(data: dict):
         headers_result.get("strength", {}).get("weak", [])
     )
 
-    # Risk update based on headers
     if headers_present == 0:
         score += 20
-    elif 1 <= headers_present <= 2:
+    elif headers_present <= 2:
         score += 10
 
     if weak_headers > 0:
@@ -101,7 +114,7 @@ def complete_scan(data: dict):
     score = min(score, 100)
     level = risk_level(score)
 
-    # ---------- Step 7: Warnings ----------
+    # ---------- Warnings ----------
     warnings = []
 
     if typo_detected:
@@ -114,56 +127,42 @@ def complete_scan(data: dict):
 
     if not https_used:
         warnings.append("Website does not use HTTPS.")
-
     elif not ssl_result["certificate_valid"]:
-        warnings.append("SSL certificate is invalid or expired.")
+        warnings.append("SSL certificate invalid or expired.")
 
     if headers_present < 6:
         warnings.append("Missing important security headers.")
 
     if weak_headers:
-        warnings.append("Some security headers are weakly configured.")
+        warnings.append("Some headers weakly configured.")
 
-    # ---------- Step 8: Recommendations ----------
+    # ---------- Recommendations ----------
     recommendations = []
 
     if typo_detected:
         recommendations.append(
-            f"This domain is similar to {domain_result['matched_domain']}. Verify website carefully."
+            f"Domain resembles {domain_result['matched_domain']}. Verify site."
         )
 
     if pattern_warnings:
-        recommendations.append(
-            "Domain contains suspicious keywords. Be cautious."
-        )
+        recommendations.append("Suspicious keywords detected.")
 
     if not https_used:
-        recommendations.append(
-            "Website doesn't use HTTPS. Your data may not be secure."
-        )
-
+        recommendations.append("Website not secure without HTTPS.")
     elif not ssl_result["certificate_valid"]:
-        recommendations.append(
-            "Website SSL certificate is invalid. Avoid entering sensitive data."
-        )
+        recommendations.append("SSL invalid. Avoid entering data.")
 
     if headers_present < 6:
-        recommendations.append(
-            "Add missing security headers for better protection."
-        )
+        recommendations.append("Add missing security headers.")
 
     if weak_headers:
-        recommendations.append(
-            "Strengthen weak security header configurations."
-        )
+        recommendations.append("Strengthen weak headers.")
 
     if level == "High":
-        recommendations.append(
-            "HIGH RISK: This appears to be a phishing website. Do not enter personal information."
-        )
+        recommendations.append("HIGH RISK: Possible phishing site.")
 
-    # ---------- Final Response ----------
-    return ScanResult(
+    # ---------- Final Result ----------
+    result = ScanResult(
         url=url,
         domain=domain,
         is_suspicious=score > 30,
@@ -177,7 +176,36 @@ def complete_scan(data: dict):
             "https": https_used,
             "ssl_analysis": ssl_result,
             "security_headers": headers_result,
+            "advanced_detection": advanced_result,  # Day 7
         },
         warnings=warnings,
         recommendations=recommendations,
     )
+
+    # Save to database
+    scan_id = save_scan(result.dict())
+
+    response = result.dict()
+    response["scan_id"] = scan_id
+
+    return response
+
+
+# ---------- Database Endpoints ----------
+
+@router.get("/scans")
+def recent_scans():
+    return get_recent_scans(20)
+
+
+@router.get("/scans/domain/{domain}")
+def scans_by_domain(domain: str):
+    return get_scans_by_domain(domain)
+
+
+@router.get("/scans/{scan_id}")
+def scan_by_id(scan_id: int):
+    result = get_scan_by_id(scan_id)
+    if not result:
+        raise HTTPException(404, "Scan not found")
+    return result

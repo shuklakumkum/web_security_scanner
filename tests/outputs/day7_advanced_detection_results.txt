@@ -1,0 +1,135 @@
+
+URL: https://example.com/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Length: {'length': 140, 'is_suspicious': True, 'risk_points': 10}
+IP Check: {'domain': 'example.com', 'contains_ip': False, 'risk_points': 0}
+Special Characters: {'count': 0, 'characters_found': [], 'risk_points': 0}
+Keywords: {'keywords_found': [], 'risk_points': 0}
+Redirects: {'redirect_count': 0, 'risk_points': 0}
+TOTAL SCORE: 10
+------------------------------------------------------------
+
+URL: http://192.168.1.1/login
+Length: {'length': 24, 'is_suspicious': False, 'risk_points': 0}
+IP Check: {'domain': '192.168.1.1', 'contains_ip': True, 'risk_points': 30}
+Special Characters: {'count': 0, 'characters_found': [], 'risk_points': 0}
+Keywords: {'keywords_found': ['login'], 'risk_points': 5}
+Redirects: {'redirect_count': 0, 'risk_points': 0}
+TOTAL SCORE: 35
+------------------------------------------------------------
+
+URL: http://example.com/a-b_c@d-e_f@g
+Length: {'length': 32, 'is_suspicious': False, 'risk_points': 0}
+IP Check: {'domain': 'example.com', 'contains_ip': False, 'risk_points': 0}
+Special Characters: {'count': 4, 'characters_found': ['-', '@'], 'risk_points': 0}
+Keywords: {'keywords_found': [], 'risk_points': 0}
+Redirects: {'redirect_count': 0, 'risk_points': 0}
+TOTAL SCORE: 0
+------------------------------------------------------------
+
+URL: http://paypal-login-winner-prize.com
+Length: {'length': 36, 'is_suspicious': False, 'risk_points': 0}
+IP Check: {'domain': 'paypal-login-winner-prize.com', 'contains_ip': False, 'risk_points': 0}
+Special Characters: {'count': 3, 'characters_found': ['-'], 'risk_points': 0}
+Keywords: {'keywords_found': ['login', 'paypal', 'prize', 'winner'], 'risk_points': 20}
+Redirects: {'redirect_count': 0, 'risk_points': 0}
+TOTAL SCORE: 20
+------------------------------------------------------------
+
+URL: http://github.com
+Length: {'length': 17, 'is_suspicious': False, 'risk_points': 0}
+IP Check: {'domain': 'github.com', 'contains_ip': False, 'risk_points': 0}
+Special Characters: {'count': 0, 'characters_found': [], 'risk_points': 0}
+Keywords: {'keywords_found': [], 'risk_points': 0}
+Redirects: {'redirect_count': 1, 'risk_points': 0}
+TOTAL SCORE: 0
+------------------------------------------------------------
+
+URL: https://google.com
+Length: {'length': 18, 'is_suspicious': False, 'risk_points': 0}
+IP Check: {'domain': 'google.com', 'contains_ip': False, 'risk_points': 0}
+Special Characters: {'count': 0, 'characters_found': [], 'risk_points': 0}
+Keywords: {'keywords_found': [], 'risk_points': 0}
+Redirects: {'redirect_count': 1, 'risk_points': 0}
+TOTAL SCORE: 0
+------------------------------------------------------------
+
+URL: https://amazon.in
+Length: {'length': 17, 'is_suspicious': False, 'risk_points': 0}
+IP Check: {'domain': 'amazon.in', 'contains_ip': False, 'risk_points': 0}
+Special Characters: {'count': 0, 'characters_found': [], 'risk_points': 0}
+Keywords: {'keywords_found': [], 'risk_points': 0}
+Redirects: {'redirect_count': 1, 'risk_points': 0}
+TOTAL SCORE: 0
+------------------------------------------------------------
+
+URL: https://secure-login-bank.com
+Length: {'length': 29, 'is_suspicious': False, 'risk_points': 0}
+IP Check: {'domain': 'secure-login-bank.com', 'contains_ip': False, 'risk_points': 0}
+Special Characters: {'count': 2, 'characters_found': ['-'], 'risk_points': 0}
+Keywords: {'keywords_found': ['login', 'secure'], 'risk_points': 10}
+Redirects: {'redirect_count': 0, 'risk_points': 0}
+TOTAL SCORE: 10
+------------------------------------------------------------
+
+URL: https://crypto-wallet-secure.net
+Length: {'length': 32, 'is_suspicious': False, 'risk_points': 0}
+IP Check: {'domain': 'crypto-wallet-secure.net', 'contains_ip': False, 'risk_points': 0}
+Special Characters: {'count': 2, 'characters_found': ['-'], 'risk_points': 0}
+Keywords: {'keywords_found': ['secure', 'wallet', 'crypto'], 'risk_points': 15}
+Redirects: {'redirect_count': 0, 'risk_points': 0}
+TOTAL SCORE: 15
+------------------------------------------------------------
+
+URL: https://example.org
+Length: {'length': 19, 'is_suspicious': False, 'risk_points': 0}
+IP Check: {'domain': 'example.org', 'contains_ip': False, 'risk_points': 0}
+Special Characters: {'count': 0, 'characters_found': [], 'risk_points': 0}
+Keywords: {'keywords_found': [], 'risk_points': 0}
+Redirects: {'redirect_count': 0, 'risk_points': 0}
+TOTAL SCORE: 0
+------------------------------------------------------------
+
+URL: https://winner-prize-claim-now.com
+Length: {'length': 34, 'is_suspicious': False, 'risk_points': 0}
+IP Check: {'domain': 'winner-prize-claim-now.com', 'contains_ip': False, 'risk_points': 0}
+Special Characters: {'count': 3, 'characters_found': ['-'], 'risk_points': 0}
+Keywords: {'keywords_found': ['prize', 'winner'], 'risk_points': 10}
+Redirects: {'redirect_count': 0, 'risk_points': 0}
+TOTAL SCORE: 10
+------------------------------------------------------------
+
+URL: https://stackoverflow.com
+Length: {'length': 25, 'is_suspicious': False, 'risk_points': 0}
+IP Check: {'domain': 'stackoverflow.com', 'contains_ip': False, 'risk_points': 0}
+Special Characters: {'count': 0, 'characters_found': [], 'risk_points': 0}
+Keywords: {'keywords_found': [], 'risk_points': 0}
+Redirects: {'redirect_count': 1, 'risk_points': 0}
+TOTAL SCORE: 0
+------------------------------------------------------------
+
+URL: https://microsoft.com
+Length: {'length': 21, 'is_suspicious': False, 'risk_points': 0}
+IP Check: {'domain': 'microsoft.com', 'contains_ip': False, 'risk_points': 0}
+Special Characters: {'count': 0, 'characters_found': [], 'risk_points': 0}
+Keywords: {'keywords_found': [], 'risk_points': 0}
+Redirects: {'redirect_count': 2, 'risk_points': 0}
+TOTAL SCORE: 0
+------------------------------------------------------------
+
+URL: https://secure-update-account.com
+Length: {'length': 33, 'is_suspicious': False, 'risk_points': 0}
+IP Check: {'domain': 'secure-update-account.com', 'contains_ip': False, 'risk_points': 0}
+Special Characters: {'count': 2, 'characters_found': ['-'], 'risk_points': 0}
+Keywords: {'keywords_found': ['account', 'secure'], 'risk_points': 10}
+Redirects: {'redirect_count': 0, 'risk_points': 0}
+TOTAL SCORE: 10
+------------------------------------------------------------
+
+URL: https://flipkart.com
+Length: {'length': 20, 'is_suspicious': False, 'risk_points': 0}
+IP Check: {'domain': 'flipkart.com', 'contains_ip': False, 'risk_points': 0}
+Special Characters: {'count': 0, 'characters_found': [], 'risk_points': 0}
+Keywords: {'keywords_found': [], 'risk_points': 0}
+Redirects: {'redirect_count': 0, 'risk_points': 0}
+TOTAL SCORE: 0
+------------------------------------------------------------
