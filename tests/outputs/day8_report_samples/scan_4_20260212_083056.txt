@@ -1,0 +1,21 @@
+WEB SECURITY SCAN REPORT
+==================================================
+URL: http://failed.com
+Domain: failed.com
+Risk Score: 100 (High)
+
+CHECK RESULTS
+--------------------------------------------------
+ssl: Invalid
+phishing: Detected
+
+WARNINGS
+--------------------------------------------------
+- All checks failed
+
+RECOMMENDATIONS
+--------------------------------------------------
+- Immediate action required
+
+==================================================
+Generated at: 2026-02-12 08:30:56.635389

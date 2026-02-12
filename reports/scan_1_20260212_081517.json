@@ -1,0 +1,15 @@
+{
+    "scan_id": 1,
+    "url": "https://example.com",
+    "domain": "example.com",
+    "risk_score": 10,
+    "risk_level": "Low",
+    "checks": {
+        "ssl": "valid",
+        "phishing": "safe"
+    },
+    "warnings": [],
+    "recommendations": [
+        "No action required"
+    ]
+}

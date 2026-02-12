@@ -1,0 +1,8 @@
+Day 8 Report Generation Test Results
+============================================================
+Scan 1 (Low) -> tests/outputs/day8_report_samples\scan_1_20260212_083056.txt (486 bytes), Time taken: 0.00 seconds
+Scan 2 (Medium) -> tests/outputs/day8_report_samples\scan_2_20260212_083056.html (1288 bytes), Time taken: 0.00 seconds
+Scan 3 (High) -> tests/outputs/day8_report_samples\scan_3_20260212_083056.json (350 bytes), Time taken: 0.00 seconds
+Scan 4 (High) -> tests/outputs/day8_report_samples\scan_4_20260212_083056.txt (528 bytes), Time taken: 0.00 seconds
+Scan 5 (Medium) -> tests/outputs/day8_report_samples\scan_5_20260212_083056.html (1278 bytes), Time taken: 0.00 seconds
+Format validation: All reports generated successfully.

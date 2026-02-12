@@ -1,3 +1,4 @@
+# ------------------- Existing imports -------------------
 from fastapi import APIRouter, HTTPException
 from datetime import datetime
 from urllib.parse import urlparse
@@ -21,27 +22,30 @@ from src.services.database import (
     get_scans_by_domain,
 )
 
+# Day 8 imports
+from src.services.report_generator import (
+    generate_text_report,
+    generate_json_report,
+    generate_html_report,
+    save_report
+)
+
 router = APIRouter()
 
 # Initialize database
 init_database()
 
 
-# ---------- Risk Calculation ----------
+# ------------------- Risk functions -------------------
 def calculate_risk(valid_url, typo_detected, patterns, https_used):
     score = 0
-
     if not valid_url:
         score += 20
-
     if typo_detected:
         score += 50
-
     score += len(patterns) * 10
-
     if not https_used:
         score += 20
-
     return min(score, 100)
 
 
@@ -53,7 +57,7 @@ def risk_level(score: int):
     return "High"
 
 
-# ---------- Scan Endpoint ----------
+# ------------------- Scan endpoint -------------------
 @router.post("/scan", response_model=ScanResult)
 def complete_scan(data: dict):
     url = data["url"]
@@ -76,11 +80,11 @@ def complete_scan(data: dict):
     ssl_result = analyze_ssl(url)
     https_used = ssl_result["has_https"]
 
-    # ---------- Day 7 Advanced Detection ----------
+    # Day 7 advanced detection
     advanced_result = advanced_scan(url)
     advanced_score = advanced_result["advanced_risk_score"]
 
-    # ---------- Base Risk ----------
+    # Base risk
     score = calculate_risk(
         valid_url,
         typo_detected,
@@ -88,20 +92,15 @@ def complete_scan(data: dict):
         https_used,
     )
 
-    # Add advanced detection impact
     score += advanced_score // 2
 
-    # SSL certificate issue
     if https_used and not ssl_result["certificate_valid"]:
         score += 30
 
-    # ---------- Security headers ----------
+    # Security headers
     headers_result = generate_security_score(url)
-
     headers_present = headers_result.get("headers_present", 0)
-    weak_headers = len(
-        headers_result.get("strength", {}).get("weak", [])
-    )
+    weak_headers = len(headers_result.get("strength", {}).get("weak", []))
 
     if headers_present == 0:
         score += 20
@@ -114,54 +113,43 @@ def complete_scan(data: dict):
     score = min(score, 100)
     level = risk_level(score)
 
-    # ---------- Warnings ----------
+    # Warnings
     warnings = []
-
     if typo_detected:
         warnings.append(
             f"Domain similar to legitimate site: {domain_result['matched_domain']}"
         )
-
     if pattern_warnings:
         warnings.extend(pattern_warnings)
-
     if not https_used:
         warnings.append("Website does not use HTTPS.")
     elif not ssl_result["certificate_valid"]:
         warnings.append("SSL certificate invalid or expired.")
-
     if headers_present < 6:
         warnings.append("Missing important security headers.")
-
     if weak_headers:
         warnings.append("Some headers weakly configured.")
 
-    # ---------- Recommendations ----------
+    # Recommendations
     recommendations = []
-
     if typo_detected:
         recommendations.append(
             f"Domain resembles {domain_result['matched_domain']}. Verify site."
         )
-
     if pattern_warnings:
         recommendations.append("Suspicious keywords detected.")
-
     if not https_used:
         recommendations.append("Website not secure without HTTPS.")
     elif not ssl_result["certificate_valid"]:
         recommendations.append("SSL invalid. Avoid entering data.")
-
     if headers_present < 6:
         recommendations.append("Add missing security headers.")
-
     if weak_headers:
         recommendations.append("Strengthen weak headers.")
-
     if level == "High":
         recommendations.append("HIGH RISK: Possible phishing site.")
 
-    # ---------- Final Result ----------
+    # Final result
     result = ScanResult(
         url=url,
         domain=domain,
@@ -176,7 +164,7 @@ def complete_scan(data: dict):
             "https": https_used,
             "ssl_analysis": ssl_result,
             "security_headers": headers_result,
-            "advanced_detection": advanced_result,  # Day 7
+            "advanced_detection": advanced_result,
         },
         warnings=warnings,
         recommendations=recommendations,
@@ -187,12 +175,10 @@ def complete_scan(data: dict):
 
     response = result.dict()
     response["scan_id"] = scan_id
-
     return response
 
 
-# ---------- Database Endpoints ----------
-
+# ------------------- Database endpoints -------------------
 @router.get("/scans")
 def recent_scans():
     return get_recent_scans(20)
@@ -209,3 +195,33 @@ def scan_by_id(scan_id: int):
     if not result:
         raise HTTPException(404, "Scan not found")
     return result
+
+
+# ------------------- Day 8 Report Endpoint -------------------
+@router.get("/scans/{scan_id}/report")
+def get_report(scan_id: int, format: str = "text"):
+    scan = get_scan_by_id(scan_id)
+
+    if not scan:
+        raise HTTPException(404, "Scan not found")
+
+    if format == "text":
+        report = generate_text_report(scan)
+        ext = "txt"
+    elif format == "json":
+        report = generate_json_report(scan)
+        ext = "json"
+    elif format == "html":
+        report = generate_html_report(scan)
+        ext = "html"
+    else:
+        raise HTTPException(400, "Invalid format. Use text, json, or html.")
+
+    filepath = save_report(report, ext, scan_id)
+
+    return {
+        "scan_id": scan_id,
+        "format": format,
+        "saved_to": filepath,
+        "report": report,
+    }

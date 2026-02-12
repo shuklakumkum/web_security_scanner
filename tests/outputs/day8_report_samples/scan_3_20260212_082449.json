@@ -1,0 +1,17 @@
+{
+    "scan_id": 3,
+    "url": "http://highrisk.com",
+    "domain": "highrisk.com",
+    "risk_score": 90,
+    "risk_level": "High",
+    "checks": {
+        "ssl": "Invalid",
+        "phishing": "Detected"
+    },
+    "warnings": [
+        "Multiple issues found"
+    ],
+    "recommendations": [
+        "Do not visit this site"
+    ]
+}
