@@ -1,0 +1,89 @@
+Day 5 - Complete Scan Results
+================================
+
+1. https://github.com
+Risk Score: 5
+Risk Level: Low
+HTTPS: Yes
+Security Headers: Excellent (6 headers)
+Result: Safe website
+
+
+2. https://google.com
+Risk Score: 10
+Risk Level: Low
+HTTPS: Yes
+Security Headers: Partial (2 headers)
+Result: Safe but some headers missing
+
+
+3. https://mozilla.org
+Risk Score: 0
+Risk Level: Low
+HTTPS: Yes
+Security Headers: Good (5 headers)
+Result: Very secure website
+
+
+4. https://amazon.in
+Risk Score: 10
+Risk Level: Low
+HTTPS: Yes
+Security Headers: Minimal
+Result: Safe but headers need improvement
+
+
+5. https://flipkart.com
+Risk Score: 10
+Risk Level: Low
+HTTPS: Yes
+Security Headers: Limited
+Result: Safe but headers missing
+
+
+6. https://wikipedia.org
+Risk Score: 20
+Risk Level: Low
+HTTPS: Yes
+Security Headers: Missing
+Result: Safe but security headers absent
+
+
+7. http://example.com
+Risk Score: 40
+Risk Level: Medium
+HTTPS: No
+Security Headers: Missing
+Result: Not secure (HTTP only)
+
+
+8. https://httpbin.org
+Risk Score: 20
+Risk Level: Low
+HTTPS: Yes
+Security Headers: Missing
+Result: Safe but headers missing
+
+
+9. http://amazom-login.xyz
+Risk Score: 60
+Risk Level: Medium
+HTTPS: No
+Warnings: Suspicious domain & login keyword
+Result: Likely phishing website
+
+
+10. http://paypa1-login.xyz
+Risk Score: 70
+Risk Level: High
+HTTPS: No
+Warnings: Character substitution + phishing pattern
+Result: High risk phishing website
+
+
+11. https://github.com/login
+Risk Score: 5
+Risk Level: Low
+HTTPS: Yes
+Security Headers: Excellent
+Result: Safe login page
