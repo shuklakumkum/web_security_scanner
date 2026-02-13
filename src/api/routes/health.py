@@ -59,3 +59,4 @@ def test_error(error_type: str = "validation"):
         raise ScanFailedError("This is a test scan error")
     else:
         return {"message": "No error triggered", "success": True}
+ac
