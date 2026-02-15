@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 
 from src.models.responses import HealthResponse, DetailedHealthResponse
 from src.config.settings import settings
-from src.api.exceptions import URLValidationError, ScanFailedError    
+from src.api.exceptions import URLValidationError, ScanFailedError
 
 router = APIRouter(
     prefix="/health",
@@ -54,9 +54,8 @@ def test_error(error_type: str = "validation"):
     none: returns success
     """
     if error_type == "validation":
-        raise URLValidationError("This is a test validation error")   
+        raise URLValidationError("This is a test validation error")
     elif error_type == "scan":
         raise ScanFailedError("This is a test scan error")
     else:
         return {"message": "No error triggered", "success": True}
-ac
