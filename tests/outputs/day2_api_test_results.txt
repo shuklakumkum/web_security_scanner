@@ -1,0 +1,99 @@
+Day 2 - Domain Check API Test Results
+======================================
+
+Test 1: POST /api/check-domain
+URL: https://google.com
+Status: 404
+Response:
+{'detail': 'Not Found'}
+
+Test 2: POST /api/check-domain
+URL: https://amazon.com
+Status: 404
+Response:
+{'detail': 'Not Found'}
+
+Test 3: POST /api/check-domain
+URL: https://flipkart.com
+Status: 404
+Response:
+{'detail': 'Not Found'}
+
+Test 4: POST /api/check-domain
+URL: https://facebook.com
+Status: 404
+Response:
+{'detail': 'Not Found'}
+
+Test 5: POST /api/check-domain
+URL: https://amazom.com
+Status: 404
+Response:
+{'detail': 'Not Found'}
+
+Test 6: POST /api/check-domain
+URL: https://gooogle.com
+Status: 404
+Response:
+{'detail': 'Not Found'}
+
+Test 7: POST /api/check-domain
+URL: https://faceb00k.com
+Status: 404
+Response:
+{'detail': 'Not Found'}
+
+Test 8: POST /api/check-domain
+URL: https://flipkart.co
+Status: 404
+Response:
+{'detail': 'Not Found'}
+
+Test 9: POST /api/check-domain
+URL: https://amazon-login.com
+Status: 404
+Response:
+{'detail': 'Not Found'}
+
+Test 10: POST /api/check-domain
+URL: https://secure-flipkart.com
+Status: 404
+Response:
+{'detail': 'Not Found'}
+
+Test 11: POST /api/check-domain
+URL: https://paytm-verify-account.com
+Status: 404
+Response:
+{'detail': 'Not Found'}
+
+Test 12: POST /api/check-domain
+URL: https://google-security-alert.com
+Status: 404
+Response:
+{'detail': 'Not Found'}
+
+Test 13: POST /api/check-domain
+URL: https://amazom-login-verify.xyz
+Status: 404
+Response:
+{'detail': 'Not Found'}
+
+Test 14: POST /api/check-domain
+URL: https://secure-amazon-account-update.tk
+Status: 404
+Response:
+{'detail': 'Not Found'}
+
+Test 15: POST /api/check-domain
+URL: https://faceb00k-security-check-urgent.ml
+Status: 404
+Response:
+{'detail': 'Not Found'}
+
+API Performance:
+----------------
+Total Requests: 15
+Successful (200): 0
+Failed: 15
+Average Response Time: 3.82 ms

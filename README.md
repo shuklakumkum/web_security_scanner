@@ -73,7 +73,7 @@ Reports include:
 
 ---
 
-## Installation Guide
+## Installation Instructions
 
 ### 1. Clone Repository
 ```bash

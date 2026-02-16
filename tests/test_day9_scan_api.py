@@ -1,62 +1,71 @@
-# tests/test_day9_final.py
-
 import pytest
 from fastapi.testclient import TestClient
-from src.main import app  # Your FastAPI app
-from src.services import url_validator, domain_checker  # Direct service imports
+from src.main import app
+from src.services.url_validator import validate_url
+from src.services.domain_checker import analyze_domain
 
 client = TestClient(app)
 
-# -----------------------------
+# ---------------------------
 # API Endpoint Tests
-# -----------------------------
+# ---------------------------
 
 def test_scan_safe_url_api():
-    """Test safe URL via API endpoint"""
+    """Test a safe URL via the API endpoint"""
     url = "https://example.com"
-    response = client.post("/scan", json={"url": url})
+    response = client.post("/api/scan", json={"url": url})  # <-- added /api
     
     assert response.status_code == 200
     data = response.json()
-    assert "url" in data
     assert data["url"] == url
-    assert "risk_level" in data
     assert data["risk_level"] in ["Low", "Medium", "High"]
-    assert data.get("is_suspicious") is False or data.get("is_suspicious") is None
+    assert data["is_suspicious"] is False
 
 def test_scan_suspicious_url_api():
-    """Test suspicious URL via API endpoint"""
+    """Test a suspicious URL via the API endpoint"""
     url = "http://192.168.1.1"
-    response = client.post("/scan", json={"url": url})
+    response = client.post("/api/scan", json={"url": url})  # <-- added /api
     
     assert response.status_code == 200
     data = response.json()
-    assert data["is_suspicious"] is True
+    assert data["url"] == url
     assert data["risk_level"] == "High"
+    assert data["is_suspicious"] is True
 
-# -----------------------------
-# Direct Service Tests
-# -----------------------------
+# ---------------------------
+# Service Function Tests
+# ---------------------------
 
 def test_url_validator_safe():
-    """Directly test url_validator service"""
-    result = url_validator.validate_url("https://example.com")
+    """Directly test validate_url() with a safe URL"""
+    url = "https://example.com"
+    result = validate_url(url)
+    
     assert result["valid"] is True
     assert result["domain"] == "example.com"
+    assert result["scheme"] == "https"
 
 def test_url_validator_invalid():
-    """Directly test url_validator with invalid URL"""
-    result = url_validator.validate_url("htp://bad_url")
+    """Directly test validate_url() with an invalid URL"""
+    url = "ht!tp://invalid-url"
+    result = validate_url(url)
+    
     assert result["valid"] is False
-
-def test_domain_checker_suspicious():
-    """Directly test domain_checker service for suspicious IP"""
-    result = domain_checker.check_domain("http://192.168.1.1")
-    assert result["risk_level"] == "High"
-    assert result["is_suspicious"] is True
+    assert result["domain"] == ""
+    assert "error" in result
 
 def test_domain_checker_safe():
-    """Directly test domain_checker service for safe domain"""
-    result = domain_checker.check_domain("https://example.com")
-    assert result["risk_level"] in ["Low", "Medium"]
-    assert result["is_suspicious"] is False or result["is_suspicious"] is None
+    """Directly test analyze_domain() for a safe domain"""
+    result = analyze_domain("example.com")
+    
+    assert result["is_suspicious"] is False
+    assert result["risk_score"] <= 30
+    assert isinstance(result["warnings"], list)
+
+def test_domain_checker_suspicious():
+    """Directly test analyze_domain() for a suspicious IP"""
+    result = analyze_domain("192.168.1.1")
+    
+    assert result["is_suspicious"] is True
+    assert result["risk_score"] > 0
+    assert isinstance(result["warnings"], list)
