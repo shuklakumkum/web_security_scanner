@@ -1,183 +1,195 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
 from datetime import datetime
-from urllib.parse import urlparse
+from typing import List
 
-from src.models.responses import ScanResult
+# Services
 from src.services.url_validator import validate_url
-from src.services.domain_checker import (
-    check_domain_similarity,
-    check_suspicious_patterns,
-)
+from src.services.domain_checker import analyze_domain
 from src.services.ssl_checker import analyze_ssl
 from src.services.security_headers import generate_security_score
+from src.services.advanced_detection import advanced_scan
 
-router = APIRouter()
+from src.services.database import (
+    save_scan_result,
+    get_scan_by_id,
+    get_recent_scans,
+    get_scans_by_domain,
+)
 
+router = APIRouter(tags=["Scans"])
 
-# ---------------- Risk Calculation ----------------
-def calculate_risk(
-    valid_url: bool,
-    typo_detected: bool,
-    patterns: list,
-    https_used: bool
-):
-    score = 0
+# Request Model
+class URLRequest(BaseModel):
+    url: str
 
-    if not valid_url:
-        score += 20
+# HEALTH ENDPOINTS
+@router.get("/health")
+def health():
+    return {"status": "healthy"}
 
-    if typo_detected:
-        score += 50
+@router.get("/health/detailed")
+def health_detailed():
+    return {
+        "status": "healthy",
+        "service": "Web Security Scanner",
+        "time": datetime.utcnow().isoformat()
+    }
 
-    score += len(patterns) * 10
+@router.get("/health/test-error")
+def health_error():
+    raise HTTPException(status_code=500, detail="Test error endpoint")
 
-    # No HTTPS penalty
-    if not https_used:
-        score += 20
+# COMPLETE SCAN ENDPOINT
+@router.post("/scan")
+def complete_scan(request: URLRequest):
+    url = request.url
+    risk_score = 0
+    warnings: List[str] = []
+    recommendations: List[str] = []
 
-    return min(score, 100)
+    # URL VALIDATION
+    try:
+        validation = validate_url(url)
+    except Exception as e:
+        validation = {"valid": False, "domain": "", "scheme": "", "error": str(e)}
 
+    if not validation.get("valid", False):
+        risk_score += 20
+        warnings.append("Invalid URL format")
+        recommendations.append("Check URL format before visiting.")
+        domain = ""
+    else:
+        domain = validation.get("domain", "")
 
-def risk_level(score: int):
-    if score <= 30:
-        return "Low"
-    elif score <= 60:
-        return "Medium"
-    return "High"
+    # DOMAIN ANALYSIS
+    try:
+        domain_result = analyze_domain(domain)
+    except Exception as e:
+        domain_result = {
+            "is_suspicious": False,
+            "matched_domain": "",
+            "warnings": [f"Domain analysis failed: {str(e)}"],
+            "risk_score": 0
+        }
 
+    risk_score += domain_result.get("risk_score", 0)
+    warnings.extend(domain_result.get("warnings", []))
+    if domain_result.get("is_suspicious"):
+        recommendations.append(f"Domain similar to {domain_result.get('matched_domain')}.")
 
-# ---------------- Scan Endpoint ----------------
-@router.post("/scan", response_model=ScanResult)
-def complete_scan(data: dict):
-    url = data["url"]
+    # SSL CHECK
+    try:
+        ssl_result = analyze_ssl(url)
+    except Exception as e:
+        ssl_result = {
+            "has_https": False,
+            "valid_certificate": False,
+            "certificate_info": {},
+            "error": f"SSL check failed: {str(e)}"
+        }
 
-    parsed = urlparse(url if "://" in url else f"http://{url}")
-    domain = parsed.netloc.replace("www.", "")
+    if not ssl_result.get("has_https", True):
+        risk_score += 20
+        warnings.append("Website not using HTTPS")
+        recommendations.append("Avoid entering data on HTTP sites.")
+    if not ssl_result.get("valid_certificate", True):
+        risk_score += 30
+        warnings.append("Invalid SSL certificate")
 
-    # ---------- Step 1: URL validation ----------
-    url_result = validate_url(url)
-    valid_url = url_result["valid"]
+    # SECURITY HEADERS
+    try:
+        headers_result = generate_security_score(url)
+    except Exception as e:
+        headers_result = {"missing_headers": [], "error": f"Security headers check failed: {str(e)}"}
 
-    # ---------- Step 2: Domain similarity ----------
-    domain_result = check_domain_similarity(domain)
-    typo_detected = domain_result["is_similar"]
+    missing_headers = headers_result.get("missing_headers", [])
+    if len(missing_headers) >= 5:
+        risk_score += 20
+    elif len(missing_headers) >= 3:
+        risk_score += 10
 
-    # ---------- Step 3: Pattern check ----------
-    pattern_warnings = check_suspicious_patterns(domain)
+    # ADVANCED DETECTION
+    try:
+        advanced_result = advanced_scan(url)
+    except Exception as e:
+        advanced_result = {"risk_score": 0, "warnings": [f"Advanced detection failed: {str(e)}"]}
 
-    # ---------- Step 4: SSL analysis ----------
-    ssl_result = analyze_ssl(url)
-    https_used = ssl_result["has_https"]
+    risk_score += advanced_result.get("risk_score", 0)
+    warnings.extend(advanced_result.get("warnings", []))
 
-    # ---------- Step 5: Base Risk calculation ----------
-    score = calculate_risk(
-        valid_url,
-        typo_detected,
-        pattern_warnings,
-        https_used,
-    )
+    # LIMIT SCORE
+    risk_score = min(100, risk_score)
 
-    # Extra SSL penalty
-    if https_used and not ssl_result["certificate_valid"]:
-        score += 30
+    # RISK LEVEL
+    if risk_score <= 30:
+        risk_level = "Low"
+    elif risk_score <= 60:
+        risk_level = "Medium"
+    else:
+        risk_level = "High"
+        recommendations.append("HIGH RISK: Possible phishing website.")
 
-    # ---------- Step 6: Security Headers ----------
-    headers_result = generate_security_score(url)
-
-    headers_present = headers_result.get("headers_present", 0)
-    weak_headers = len(
-        headers_result.get("strength", {}).get("weak", [])
-    )
-
-    # Risk update based on headers
-    if headers_present == 0:
-        score += 20
-    elif 1 <= headers_present <= 2:
-        score += 10
-
-    if weak_headers > 0:
-        score += 5
-
-    score = min(score, 100)
-    level = risk_level(score)
-
-    # ---------- Step 7: Warnings ----------
-    warnings = []
-
-    if typo_detected:
-        warnings.append(
-            f"Domain similar to legitimate site: {domain_result['matched_domain']}"
-        )
-
-    if pattern_warnings:
-        warnings.extend(pattern_warnings)
-
-    if not https_used:
-        warnings.append("Website does not use HTTPS.")
-
-    elif not ssl_result["certificate_valid"]:
-        warnings.append("SSL certificate is invalid or expired.")
-
-    if headers_present < 6:
-        warnings.append("Missing important security headers.")
-
-    if weak_headers:
-        warnings.append("Some security headers are weakly configured.")
-
-    # ---------- Step 8: Recommendations ----------
-    recommendations = []
-
-    if typo_detected:
-        recommendations.append(
-            f"This domain is similar to {domain_result['matched_domain']}. Verify website carefully."
-        )
-
-    if pattern_warnings:
-        recommendations.append(
-            "Domain contains suspicious keywords. Be cautious."
-        )
-
-    if not https_used:
-        recommendations.append(
-            "Website doesn't use HTTPS. Your data may not be secure."
-        )
-
-    elif not ssl_result["certificate_valid"]:
-        recommendations.append(
-            "Website SSL certificate is invalid. Avoid entering sensitive data."
-        )
-
-    if headers_present < 6:
-        recommendations.append(
-            "Add missing security headers for better protection."
-        )
-
-    if weak_headers:
-        recommendations.append(
-            "Strengthen weak security header configurations."
-        )
-
-    if level == "High":
-        recommendations.append(
-            "HIGH RISK: This appears to be a phishing website. Do not enter personal information."
-        )
-
-    # ---------- Final Response ----------
-    return ScanResult(
-        url=url,
-        domain=domain,
-        is_suspicious=score > 30,
-        risk_score=score,
-        risk_level=level,
-        timestamp=datetime.utcnow().isoformat(),
-        checks={
-            "url_validation": url_result,
+    timestamp = datetime.utcnow().isoformat()
+    result = {
+        "url": url,
+        "domain": domain,
+        "risk_score": risk_score,
+        "risk_level": risk_level,
+        "is_suspicious": domain_result.get("is_suspicious", False),
+        "timestamp": timestamp,
+        "checks": {
+            "url_validation": validation,
             "domain_analysis": domain_result,
-            "patterns_detected": pattern_warnings,
-            "https": https_used,
-            "ssl_analysis": ssl_result,
+            "ssl": ssl_result,
             "security_headers": headers_result,
+            "advanced_detection": advanced_result,
         },
-        warnings=warnings,
-        recommendations=recommendations,
-    )
+        "warnings": warnings,
+        "recommendations": recommendations,
+    }
+
+    # SAVE TO DATABASE
+    try:
+        scan_id = save_scan_result(
+            url,
+            domain,
+            risk_score,
+            risk_level,
+            warnings,
+            recommendations,
+            timestamp,
+        )
+        result["scan_id"] = scan_id
+    except Exception as e:
+        result["scan_id"] = None
+        warnings.append(f"Failed to save scan: {str(e)}")
+
+    return result
+
+# DATABASE ENDPOINTS
+@router.get("/scans")
+def recent_scans():
+    try:
+        scans = get_recent_scans(20)
+        return scans
+    except Exception as e:
+        # Return an HTTP 500 error with a readable message
+        raise HTTPException(status_code=500, detail=f"Failed to fetch recent scans: {str(e)}")
+
+
+@router.get("/scans/{scan_id}")
+def scan_by_id(scan_id: int):
+    scan = get_scan_by_id(scan_id)
+    if not scan:
+        raise HTTPException(status_code=404, detail="Scan not found")
+    return scan
+
+@router.get("/scans/domain/{domain}")
+def scans_by_domain(domain: str):
+    return get_scans_by_domain(domain)
+
+# ROOT ENDPOINT
+@router.get("/")
+def root():
+    return {"message": "Web Security Scanner API running"}

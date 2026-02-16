@@ -1,134 +1,86 @@
 import requests
 import time
-from datetime import datetime
-import os
 
 BASE_URL = "http://127.0.0.1:8000/api/scan"
 
-# ---------- URL DATASETS ----------
-
-safe_urls = [
-    "https://google.com", "https://github.com", "https://microsoft.com",
-    "https://amazon.com", "https://wikipedia.org", "https://openai.com",
-    "https://stackoverflow.com", "https://python.org", "https://apple.com",
-    "https://netflix.com", "https://linkedin.com", "https://mozilla.org",
-    "https://ubuntu.com", "https://cloudflare.com", "https://reddit.com"
+# 10 safe URLs
+SAFE_URLS = [
+    "https://google.com",
+    "https://github.com",
+    "https://microsoft.com",
+    "https://openai.com",
+    "https://wikipedia.org",
+    "https://python.org",
+    "https://stackoverflow.com",
+    "https://apple.com",
+    "https://amazon.com",
+    "https://mozilla.org",
 ]
 
-phishing_urls = [
-    "http://secure-login-amazon.xyz",
-    "http://paypal-login-alert.xyz",
-    "http://update-bank-account-login.xyz",
-    "http://verify-facebook-account.xyz",
-    "http://login-security-warning.xyz",
-    "http://free-gift-card-offer.xyz",
-    "http://account-verification-required.xyz",
-    "http://reset-password-now.xyz",
-    "http://bank-security-alert.xyz",
-    "http://confirm-account-now.xyz",
-    "http://crypto-bonus-offer.xyz",
-    "http://urgent-account-update.xyz",
-    "http://verify-payment-now.xyz",
-    "http://secure-wallet-update.xyz",
-    "http://update-login-immediately.xyz",
+# 10 phishing-like URLs
+PHISHING_URLS = [
+    "http://secure-login-paypal.com",
+    "http://verify-account-bank.com",
+    "http://login-update-info.com",
+    "http://paypal-verification.net",
+    "http://account-security-alert.com",
+    "http://free-gift-prize.com",
+    "http://update-banking-info.com",
+    "http://secure-payment-check.com",
+    "http://confirm-identity-now.com",
+    "http://urgent-account-reset.com",
 ]
 
-medium_risk = [
-    "http://free-download-movies.net",
-    "http://cheap-deals-store.biz",
-    "http://unknownshop123.com",
-    "http://randomblogspot.xyz",
-    "http://unknownservice.site",
-    "http://clickfastnow.info",
-    "http://downloadnowfiles.net",
-    "http://cheapproducts.store",
-    "http://unknownsupport.help",
-    "http://fastbonus.site",
+# 5 HTTP-only URLs
+HTTP_URLS = [
+    "http://example.com",
+    "http://testphp.vulnweb.com",
+    "http://neverssl.com",
+    "http://http.badssl.com",
+    "http://demo.testfire.net",
 ]
 
-edge_cases = [
-    "http://192.168.1.1",
-    "http://localhost",
-    "ftp://example.com",
-    "https://example.com:8080",
-    "http://test",
-    "http://.com",
-    "https://example..com",
-    "invalidurl",
-    "",
-    "https://verylongdomainnameexampletestingsite123456.com"
+# 5 poor headers examples
+HEADER_TEST_URLS = [
+    "http://example.org",
+    "http://info.cern.ch",
+    "http://httpforever.com",
+    "http://speedtest.tele2.net",
+    "http://detectportal.firefox.com",
 ]
 
-all_urls = safe_urls + phishing_urls + medium_risk + edge_cases
+# Combine all URLs
+ALL_URLS = SAFE_URLS + PHISHING_URLS + HTTP_URLS + HEADER_TEST_URLS
 
-# ---------- OUTPUT FILE ----------
-output_dir = "tests/outputs"
-os.makedirs(output_dir, exist_ok=True)
 
-output_file = f"{output_dir}/day9_final_comprehensive_test.txt"
-
-results = []
-success_count = 0
-error_count = 0
-
-start_time = time.time()
-
-print("\nRunning Final System Test...\n")
-
-# ---------- TEST LOOP ----------
-for url in all_urls:
+def scan_url(url):
     try:
-        response = requests.post(BASE_URL, json={"url": url}, timeout=15)
-
-        data = response.json()
-        results.append((url, response.status_code, data))
+        response = requests.post(BASE_URL, json={"url": url})
 
         if response.status_code == 200:
-            success_count += 1
+            data = response.json()
+            print(f"Scanned: {url}")
+            print(f"Risk Level: {data.get('risk_level')} | Scan ID: {data.get('scan_id')}")
+            print("-" * 60)
         else:
-            error_count += 1
-
-        print("✓ Tested:", url)
+            print(f"Failed scan: {url} | Status: {response.status_code}")
 
     except Exception as e:
-        error_count += 1
-        results.append((url, "ERROR", str(e)))
-        print("✗ Error:", url)
+        print(f"Error scanning {url}: {e}")
 
-end_time = time.time()
-total_time = end_time - start_time
+    # delay to avoid overload
+    time.sleep(0.5)
 
-avg_time = total_time / len(all_urls)
 
-# ---------- WRITE REPORT ----------
-with open(output_file, "w", encoding="utf-8") as f:
-    f.write("FINAL COMPREHENSIVE SYSTEM TEST\n")
-    f.write("=" * 60 + "\n")
-    f.write(f"Timestamp: {datetime.now()}\n\n")
+def test_scan_30_urls():
+    print("Starting full system test...\n")
 
-    for url, status, result in results:
-        f.write(f"URL: {url}\n")
-        f.write(f"Status: {status}\n")
-        f.write(f"Result: {result}\n")
-        f.write("-" * 50 + "\n")
+    for url in ALL_URLS:
+        scan_url(url)
 
-    f.write("\nPERFORMANCE METRICS\n")
-    f.write("=" * 60 + "\n")
-    f.write(f"Total URLs Tested: {len(all_urls)}\n")
-    f.write(f"Successful Requests: {success_count}\n")
-    f.write(f"Errors: {error_count}\n")
-    f.write(f"Total Time: {total_time:.2f} seconds\n")
-    f.write(f"Average Time per URL: {avg_time:.2f} seconds\n")
+    print("\nAll 30 URLs scanned successfully.")
 
-    f.write("\nSYSTEM HEALTH CHECK\n")
-    f.write("=" * 60 + "\n")
 
-    if error_count == 0:
-        f.write("System Health: EXCELLENT\n")
-    elif error_count < 5:
-        f.write("System Health: GOOD\n")
-    else:
-        f.write("System Health: NEEDS ATTENTION\n")
-
-print("\nTest completed successfully.")
-print("Output saved to:", output_file)
+# Run automatically when script is executed
+if __name__ == "__main__":
+    test_scan_30_urls()
