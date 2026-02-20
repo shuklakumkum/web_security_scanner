@@ -1,0 +1,20 @@
+Day 13 - Responsive Design Test
+=================================
+
+Desktop (1920x1080):
+Layout: Good
+Readable: Yes
+No horizontal scroll: Yes
+
+Tablet (768x1024):
+Layout: Good
+Elements resize: Yes
+Usable: Yes
+
+Mobile (375x667):
+Layout: Good
+Touch targets big enough: Yes
+Readable: Yes
+No horizontal scroll: Yes
+
+Issues: None
