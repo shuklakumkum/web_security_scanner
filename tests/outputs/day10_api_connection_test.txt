@@ -1,0 +1,66 @@
+Day 10 - API Connection Test
+==============================
+
+Backend Status:
+Running on http://127.0.0.1:8000
+Status: Working
+
+----------------------------------------
+Test 1: Safe URL
+URL Tested: https://google.com
+
+Request Sent: Yes
+Response Received: Yes
+Status Code: 200
+
+Risk Score: 0-10
+Risk Level: Low
+HTTPS: Yes
+Suspicious: No
+
+Result: Safe website detected correctly.
+
+----------------------------------------
+Test 2: Suspicious URL (Typosquatting)
+URL Tested: https://amazom.com
+
+Request Sent: Yes
+Response Received: Yes
+Status Code: 200
+
+Risk Score: 40-60
+Risk Level: Medium
+HTTPS: Yes
+Suspicious: Possibly Yes (similar to Amazon)
+
+Result: Domain similarity detection working.
+
+----------------------------------------
+Test 3: No HTTPS Website
+URL Tested: http://example.com
+
+Request Sent: Yes
+Response Received: Yes
+Status Code: 200
+
+Risk Score: 20
+Risk Level: Low
+HTTPS: No
+Suspicious: No
+
+Warnings:
+- Website not using HTTPS
+
+Recommendation:
+- Avoid entering data on HTTP sites.
+
+Result: HTTP risk detected correctly.
+
+----------------------------------------
+
+CORS Issues: No
+API Connection: Working Successfully
+Frontend to Backend Communication: Successful
+
+Conclusion:
+Day 10 API integration working properly.

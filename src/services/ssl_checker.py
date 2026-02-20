@@ -88,13 +88,14 @@ def analyze_ssl(url: str) -> Dict:
     """Complete SSL analysis with scoring"""
 
     parsed = urlparse(url)
-    domain = parsed.netloc or parsed.path
+    domain = parsed.hostname
 
     has_https = check_https(url)
 
     score = 0
     cert_valid = False
     cert_info = {}
+    verification = {}
 
     if not has_https:
         return {
@@ -102,16 +103,20 @@ def analyze_ssl(url: str) -> Dict:
             "certificate_valid": False,
             "certificate_info": {},
             "ssl_score": 0,
+            "verification": {},
         }
 
+    # HTTPS detected
     score += 50
 
+    # Certificate verification
     verification = verify_ssl_certificate(url)
     cert_valid = verification["valid"]
 
     if cert_valid:
         score += 30
 
+    # Get certificate details
     cert_info = get_certificate_info(domain)
 
     if cert_info.get("days_until_expiry", 0) > 30:

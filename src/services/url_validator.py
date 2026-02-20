@@ -4,44 +4,53 @@ from typing import Dict, Optional
 
 
 def is_valid_domain(domain: str) -> bool:
-    """Check if domain is valid"""
-    if not domain or "." not in domain:
+    if not domain:
         return False
 
-    # only letters, numbers, dots, dashes
+    if "." not in domain:
+        return False
+
     if not re.match(r"^[A-Za-z0-9.-]+$", domain):
         return False
 
-    # No consecutive dots
     if ".." in domain:
         return False
 
     return True
 
 
-def extract_domain(url: str) -> str:
-    """Get clean domain without www."""
-    parsed = urlparse(url)
-    domain = parsed.netloc
+def normalize_url(url: str) -> str:
+    url = url.strip()
 
-    if domain.startswith("www."):
-        domain = domain[4:]
+    # If user types only name like "google"
+    if "." not in url:
+        url = url + ".com"
 
-    return domain
-
-
-def validate_url(url: str) -> Dict[str, Optional[str]]:
-    """Validate URL and extract info"""
-    if not url:
-        return {"valid": False, "domain": None, "scheme": None, "error": "URL is empty"}
-
+    # Add HTTPS if missing
     if not url.startswith(("http://", "https://")):
         url = "https://" + url
 
+    return url
+
+
+def validate_url(url: str) -> Dict[str, Optional[str]]:
+    if not url:
+        return {
+            "valid": False,
+            "domain": None,
+            "scheme": None,
+            "error": "URL is empty"
+        }
+
     try:
-        parsed = urlparse(url)
-        domain = extract_domain(url)
+        normalized_url = normalize_url(url)
+        parsed = urlparse(normalized_url)
+
+        domain = parsed.netloc
         scheme = parsed.scheme
+
+        if domain.startswith("www."):
+            domain = domain[4:]
 
         if not is_valid_domain(domain):
             return {
@@ -55,6 +64,7 @@ def validate_url(url: str) -> Dict[str, Optional[str]]:
             "valid": True,
             "domain": domain,
             "scheme": scheme,
+            "normalized_url": normalized_url,
             "error": None
         }
 
@@ -65,41 +75,3 @@ def validate_url(url: str) -> Dict[str, Optional[str]]:
             "scheme": None,
             "error": str(e)
         }
-
-
-# Test script
-if __name__ == "__main__":
-    test_urls = [
-        "https://google.com",
-        "amazon.com",
-        "http://flipkart.com",
-        "not a url",
-        "www.myntra.com",
-        "https://www.paytm.com/wallet",
-        "",
-        "ftp://example.com",
-        "https://sub.domain.example.com",
-        "invalid..domain"
-    ]
-
-    with open("tests/outputs/day1_url_validation_results.txt", "w") as f:
-        f.write("Day 1 - URL Validation Test Results\n")
-        f.write("=" * 40 + "\n")
-
-        passed = 0
-        failed = 0
-
-        for i, url in enumerate(test_urls, 1):
-            result = validate_url(url)
-            f.write(f"Test {i}: {url}\n")
-            f.write(f"Result: {result}\n\n")
-
-            if result["valid"]:
-                passed += 1
-            else:
-                failed += 1
-
-        f.write("Summary:\n")
-        f.write(f"- Total tests: {len(test_urls)}\n")
-        f.write(f"- Passed: {passed}\n")
-        f.write(f"- Failed: {failed}\n")

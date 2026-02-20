@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Security Scanner</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <header>
+        <h1>Web Security Scanner</h1>
+    </header>
+
+    <main>
+
+        <!-- URL Input Section -->
+        <div class="scan-box">
+            <input type="text" id="urlInput" placeholder="Enter website URL">
+            <button onclick="scanURL()">Scan</button>
+        </div>
+
+        <!-- Results Section -->
+        <section id="resultsSection" class="results-container" style="display:none;">
+            <div class="result-card">
+
+                <h2>Scan Results</h2>
+
+                <!-- Risk Score -->
+                <div class="score-box">
+                    <div id="riskScore" class="risk-score">0</div>
+                    <div id="riskLevel" class="risk-badge">Low</div>
+                </div>
+
+                <!-- Details -->
+                <div class="result-details">
+                    <p><strong>URL:</strong> <span id="resultUrl"></span></p>
+                    <p><strong>Domain:</strong> <span id="resultDomain"></span></p>
+                    <p><strong>Timestamp:</strong> <span id="resultTimestamp"></span></p>
+                </div>
+                <!--Detaile dchecks section-->
+                <div id="detailedChecks" class="detailed-checks">
+                    <h3>Detailed Security Checks</h3>
+                    <div id="sslCheck"></div>
+                    <div id="headersCheck"></div>
+                    <div id="domainCheck"></div>
+                    <div id="advancedCheck"></div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        Created by Kumkum
+    </footer>
+
+    <script src="js/app.js"></script>
+
+</body>
+
+</html>
