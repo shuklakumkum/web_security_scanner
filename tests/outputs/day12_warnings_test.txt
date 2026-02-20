@@ -1,0 +1,17 @@
+Day 12 - Warnings & Recommendations Test
+==========================================
+
+Test 1: http://example.com
+Warnings shown: 1 ("No HTTPS")
+Recommendations shown: 1
+Display correct: Yes
+
+Test 2: https://amazom.com
+Warnings shown: 1 ("Typosquatting")
+Recommendations shown: 1
+Display correct: Yes
+
+Test 3: https://examplephish.com
+Warnings shown: 1 ("Suspicious keywords")
+Recommendations shown: 1
+Display correct: Yes

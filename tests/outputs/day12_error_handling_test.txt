@@ -1,0 +1,26 @@
+Day 12 - Error Handling Test
+==============================
+
+Test 1: Invalid URL
+Error shown: Yes
+Message clear: Yes
+URL used: "not-a-valid-url"
+Observed result: Error message "Invalid URL. Please enter a valid website URL." displayed
+
+Test 2: API Down
+Error caught: Yes
+User notified: Yes
+URL used: "https://google.com" (with backend server stopped)
+Observed result: Error message "Error scanning URL: Failed to fetch" displayed
+
+Test 3: Timeout
+Handled gracefully: Yes
+URL used: "https://google.com" (simulate slow backend >10s)
+Observed result: Error message "Request timed out. Please try again." displayed
+
+Loading State:
+Shows while scanning: Yes
+Disappears after: Yes
+URL used: "https://google.com"
+Observed result: Spinner appeared during scan and disappeared when scan completed
+
