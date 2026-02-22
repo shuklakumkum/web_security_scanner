@@ -1,0 +1,16 @@
+Day 14 - Scan History Test
+============================
+
+Scan 5 URLs and verify:
+
+Recent Scans List:
+Shows last 5: Yes
+Updates after new scan: Yes
+Sorted correctly: Yes
+
+Click Functionality:
+Click on scan works: Yes
+Shows correct details: Yes
+
+Issues:
+- None observed

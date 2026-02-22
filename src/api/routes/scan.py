@@ -17,12 +17,11 @@ from src.services.database import (
     get_scans_by_domain,
 )
 
-# IMPORTANT: This must exist for import to work
 router = APIRouter(tags=["Scans"])
 
 
 # =========================
-# Request Model
+# REQUEST MODEL
 # =========================
 class URLRequest(BaseModel):
     url: str
@@ -67,12 +66,17 @@ def complete_scan(request: URLRequest):
     try:
         validation = validate_url(url)
     except Exception as e:
-        validation = {"valid": False, "domain": "", "scheme": "", "error": str(e)}
+        validation = {
+            "valid": False,
+            "domain": "",
+            "scheme": "",
+            "error": str(e)
+        }
 
     if not validation.get("valid", False):
         risk_score += 20
         warnings.append("Invalid URL format")
-        recommendations.append("Check URL format before visiting.")
+        recommendations.append("Check the URL format before visiting.")
         domain = ""
     else:
         domain = validation.get("domain", "")
@@ -81,12 +85,15 @@ def complete_scan(request: URLRequest):
     # 2. DOMAIN ANALYSIS
     # -------------------------
     try:
-        domain_result = analyze_domain(domain)
-    except Exception as e:
+        domain_result = analyze_domain(domain) if domain else {
+            "is_suspicious": False,
+            "warnings": [],
+            "risk_score": 0
+        }
+    except Exception:
         domain_result = {
             "is_suspicious": False,
-            "matched_domain": "",
-            "warnings": [f"Domain analysis failed: {str(e)}"],
+            "warnings": [],
             "risk_score": 0
         }
 
@@ -94,59 +101,67 @@ def complete_scan(request: URLRequest):
     warnings.extend(domain_result.get("warnings", []))
 
     if domain_result.get("is_suspicious"):
-        recommendations.append(
-            f"Domain similar to {domain_result.get('matched_domain')}."
-        )
+        recommendations.append("Domain looks similar to a known brand. Verify carefully.")
 
     # -------------------------
-    # 3. SSL CHECK
+    # 3. SSL CHECK (CORRECTED)
     # -------------------------
     try:
-        ssl_result = analyze_ssl(url)
-    except Exception as e:
+        ssl_result = analyze_ssl(url) if domain else {
+            "has_https": False,
+            "certificate_valid": False,
+            "certificate_info": {}
+        }
+    except Exception:
         ssl_result = {
             "has_https": False,
-            "valid_certificate": False,
-            "certificate_info": {},
-            "error": f"SSL check failed: {str(e)}"
+            "certificate_valid": False,
+            "certificate_info": {}
         }
 
-    if not ssl_result.get("has_https", True):
+    has_https = ssl_result.get("has_https", False)
+    valid_cert = ssl_result.get("certificate_valid", False)
+
+    if not has_https:
         risk_score += 20
         warnings.append("Website not using HTTPS")
-        recommendations.append("Avoid entering data on HTTP sites.")
+        recommendations.append("Avoid entering sensitive data on HTTP websites.")
 
-    if not ssl_result.get("valid_certificate", True):
+    if has_https and not valid_cert:
         risk_score += 30
-        warnings.append("Invalid SSL certificate")
+        warnings.append("Invalid or expired SSL certificate")
+        recommendations.append("Fix SSL certificate configuration.")
 
     # -------------------------
     # 4. SECURITY HEADERS
     # -------------------------
     try:
         headers_result = generate_security_score(url)
-    except Exception as e:
+    except Exception:
         headers_result = {
-            "missing_headers": [],
-            "error": f"Security headers check failed: {str(e)}"
+            "analysis": {
+                "missing_headers": []
+            }
         }
 
-    missing_headers = headers_result.get("missing_headers", [])
+    missing_headers = headers_result.get("analysis", {}).get("missing_headers", [])
 
     if len(missing_headers) >= 5:
         risk_score += 20
+        warnings.append("Many important security headers are missing")
     elif len(missing_headers) >= 3:
         risk_score += 10
+        warnings.append("Some security headers are missing")
 
     # -------------------------
     # 5. ADVANCED DETECTION
     # -------------------------
     try:
         advanced_result = advanced_scan(url)
-    except Exception as e:
+    except Exception:
         advanced_result = {
             "risk_score": 0,
-            "warnings": [f"Advanced detection failed: {str(e)}"]
+            "warnings": []
         }
 
     risk_score += advanced_result.get("risk_score", 0)
@@ -155,18 +170,18 @@ def complete_scan(request: URLRequest):
     # -------------------------
     # LIMIT SCORE
     # -------------------------
-    risk_score = min(100, risk_score)
+    risk_score = max(0, min(100, risk_score))
 
     # -------------------------
-    # RISK LEVEL
+    # RISK LEVEL LOGIC
     # -------------------------
-    if risk_score <= 30:
+    if risk_score < 10:
         risk_level = "Low"
-    elif risk_score <= 60:
+    elif risk_score < 50:
         risk_level = "Medium"
     else:
         risk_level = "High"
-        recommendations.append("HIGH RISK: Possible phishing website.")
+        recommendations.append("HIGH RISK: Possible phishing or unsafe website.")
 
     timestamp = datetime.utcnow().isoformat()
 
@@ -214,13 +229,7 @@ def complete_scan(request: URLRequest):
 # =========================
 @router.get("/scans")
 def recent_scans():
-    try:
-        return get_recent_scans(20)
-    except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to fetch recent scans: {str(e)}"
-        )
+    return get_recent_scans(20)
 
 
 @router.get("/scans/{scan_id}")

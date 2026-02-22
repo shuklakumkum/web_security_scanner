@@ -1,299 +1,162 @@
-/* ===== Body ===== */
+/* ========================================= */
+/* PROFESSIONAL SINGLE PAGE LAYOUT DESIGN */
+/* ========================================= */
+
 body {
-    font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
-    max-width: 950px;
-    margin: 0 auto;
-    text-align: center;
-    background: #f8f9fa;
-    /* polished background */
+    font-family: 'Segoe UI', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #f5f7fa;
     color: #2c3e50;
-    /* professional dark color */
-    padding: 30px;
-    animation: fadeIn 0.8s ease-in-out;
 }
 
-/* Smooth Fade */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(15px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+/* ===== CONTAINER ===== */
+main {
+    max-width: 1100px;
+    margin: auto;
+    padding: 40px 20px;
 }
 
-/* ===== Header ===== */
+/* ===== HEADER ===== */
 header {
-    background: #ffffff;
-    padding: 25px;
-    border-radius: 14px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-    margin-bottom: 35px;
-    border-left: 6px solid #2980b9;
-    /* professional blue */
+    background: #1f4e79;
+    color: white;
+    padding: 40px 20px;
+    text-align: center;
 }
 
 header h1 {
     margin: 0;
-    font-size: 30px;
-    color: #2980b9;
-    font-weight: 700;
+    font-size: 32px;
 }
 
-/* ===== Input ===== */
-input {
-    padding: 14px;
+/* ===== SECTION STYLE ===== */
+section {
+    margin-bottom: 60px;
+}
+
+.about-section,
+.instructions-section,
+.result-card,
+#recent-scans {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.about-section h2,
+.instructions-section h2,
+#recent-scans h2 {
+    margin-top: 0;
+    color: #1f4e79;
+    border-bottom: 2px solid #e6ecf2;
+    padding-bottom: 10px;
+}
+
+/* ===== SCAN AREA (CENTER FOCUS) ===== */
+.scan-box {
+    text-align: center;
+    margin: 40px 0;
+}
+
+.scan-box input {
     width: 60%;
-    margin-right: 10px;
+    padding: 14px;
     font-size: 16px;
-    border-radius: 8px;
-    border: 1px solid #dfe6e9;
-    outline: none;
-    transition: all 0.3s ease-in-out;
-    background-color: #ffffff;
+    border-radius: 6px;
+    border: 1px solid #ccd6dd;
 }
 
-input:focus {
-    border-color: #2980b9;
-    box-shadow: 0 0 10px rgba(41, 128, 185, 0.3);
-    transform: scale(1.02);
-}
-
-/* ===== Button ===== */
-button {
-    padding: 14px 28px;
+.scan-box button {
+    padding: 14px 25px;
     font-size: 16px;
-    border-radius: 8px;
+    border-radius: 6px;
     border: none;
-    cursor: pointer;
-    font-weight: 600;
-    background: linear-gradient(45deg, #2980b9, #3498db);
+    margin-left: 10px;
+    background: #1f4e79;
     color: white;
-    transition: all 0.3s ease-in-out;
+    cursor: pointer;
 }
 
-button:hover {
-    transform: translateY(-3px) scale(1.05);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+.scan-box button:hover {
+    background: #163a5c;
 }
 
-/* ===== Results Card ===== */
-pre,
-.result-card {
-    text-align: left;
-    background: #ffffff;
-    padding: 25px;
-    border-radius: 14px;
-    margin-top: 35px;
-    overflow-x: auto;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
-    border-left: 6px solid #2980b9;
-    font-size: 14px;
-}
-
+/* ===== RESULTS ===== */
 .results-container {
-    margin-top: 30px;
     display: flex;
     justify-content: center;
-    flex-wrap: wrap;
 }
 
 .result-card {
-    background: #ffffff;
-    padding: 30px;
-    border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    max-width: 650px;
     width: 100%;
-    max-width: 600px;
     text-align: center;
-    transition: all 0.3s ease-in-out;
-}
-
-/* Score Box */
-.score-box {
-    margin: 20px 0;
 }
 
 .risk-score {
-    font-size: 60px;
+    font-size: 55px;
     font-weight: bold;
-    margin-bottom: 10px;
-    transition: font-size 0.3s ease;
 }
 
 .risk-badge {
-    display: inline-block;
-    padding: 8px 20px;
+    padding: 6px 18px;
     border-radius: 20px;
     color: white;
     font-weight: bold;
 }
 
-/* Risk Levels */
 .low {
-    background-color: #27ae60;
+    background: #2e8b57;
 }
 
-/* green */
 .medium {
-    background-color: #f39c12;
+    background: #d98c00;
 }
 
-/* orange */
 .high {
-    background-color: #c0392b;
+    background: #b22222;
 }
 
-/* red */
-
-/* Details */
-.result-details p {
-    margin: 8px 0;
-    font-size: 16px;
-    line-height: 1.5;
-}
-
-.detailed-checks {
-    margin-top: 20px;
-    text-align: left;
-}
-
+/* ===== DETAILS ===== */
 .detailed-checks div,
 .detailed-checks ul {
-    margin: 8px 0;
+    background: #f4f7fa;
     padding: 10px;
-    background: #f5f5f5;
     border-radius: 6px;
+    margin-top: 10px;
+}
+
+/* ===== RECENT SCANS ===== */
+#recent-scans ul {
     list-style: none;
-    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
-    transition: all 0.3s ease-in-out;
+    padding: 0;
 }
 
-/* Warnings & Recommendations */
-#warnings-list li {
-    color: #e74c3c;
-    margin: 4px 0;
+#recent-scans li {
+    padding: 10px 0;
+    border-bottom: 1px solid #e6ecf2;
 }
 
-#recommendations-list li {
-    color: #2980b9;
-    margin: 4px 0;
-}
-
-.clean {
-    color: #27ae60;
-    font-weight: bold;
-}
-
-/* Loading Spinner */
-.loading-spinner {
-    font-size: 18px;
-    font-weight: bold;
-    color: #2980b9;
-    animation: blink 1s infinite;
-    text-align: center;
-    padding: 30px 0;
-}
-
-@keyframes blink {
-
-    0%,
-    100% {
-        opacity: 1;
-    }
-
-    50% {
-        opacity: 0.3;
-    }
-}
-
-/* Error Message */
-.error-message {
-    color: #c0392b;
-    font-weight: bold;
-    margin-bottom: 20px;
-    text-align: center;
-}
-
-/* Footer */
+/* ===== FOOTER ===== */
 footer {
+    background: #1f4e79;
+    color: white;
+    text-align: center;
+    padding: 20px;
     margin-top: 40px;
-    color: #7f8c8d;
-    font-size: 14px;
 }
 
-/* ===== Responsive Design ===== */
-
-/* Mobile Phones */
-@media only screen and (max-width: 600px) {
-    body {
-        font-size: 14px;
-        padding: 15px;
-    }
-
-    input {
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .scan-box input {
         width: 100%;
         margin-bottom: 10px;
     }
 
-    button {
+    .scan-box button {
         width: 100%;
-        padding: 12px;
-        font-size: 16px;
-    }
-
-    header h1 {
-        font-size: 22px;
-    }
-
-    .result-card {
-        width: 100%;
-        padding: 20px;
-    }
-
-    .risk-score {
-        font-size: 40px;
-    }
-
-    .result-details p {
-        font-size: 14px;
-    }
-}
-
-/* Tablets */
-@media only screen and (max-width: 900px) {
-    body {
-        font-size: 16px;
-        padding: 20px;
-    }
-
-    input {
-        width: 80%;
-        margin-bottom: 10px;
-    }
-
-    button {
-        width: 80%;
-        font-size: 16px;
-    }
-
-    header h1 {
-        font-size: 26px;
-    }
-
-    .result-card {
-        width: 95%;
-        padding: 25px;
-    }
-
-    .risk-score {
-        font-size: 50px;
-    }
-
-    .result-details p {
-        font-size: 15px;
+        margin-left: 0;
     }
 }

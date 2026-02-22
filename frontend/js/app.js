@@ -1,12 +1,16 @@
 console.log("App.js loaded successfully");
 
 const API_URL = "http://127.0.0.1:8000/api/scan";
+const SCANS_API_URL = "http://127.0.0.1:8000/api/scans"; // For recent scans
 const TIMEOUT = 20000; // 20-second timeout
 
+/* ====== Scan URL Function ====== */
 async function scanURL() {
     const inputElement = document.getElementById("urlInput");
     if (!inputElement) return alert("Input element not found!");
-    const url = inputElement.value.trim();
+
+    // Trim and remove trailing dot from URL
+    let url = inputElement.value.trim().replace(/\.$/, '');
 
     try { new URL(url); }
     catch (e) { return showError("Invalid URL entered. Please enter a valid URL."); }
@@ -22,23 +26,34 @@ async function scanURL() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ url }),
             signal: controller.signal
-        }).then(res => { if (!res.ok) throw new Error(`HTTP ${res.status}`); return res.json(); });
+        }).then(res => {
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            return res.json();
+        });
 
         const timeoutPromise = new Promise((_, reject) =>
             setTimeout(() => { controller.abort(); reject(new Error("API timeout. Please try again.")); }, TIMEOUT)
         );
 
         const data = await Promise.race([fetchPromise, timeoutPromise]);
+
         displayResults(data);
         displayDetailedChecks(data);
+
         const { warnings, recommendations } = extractWarningsAndRecommendations(data);
         displayWarnings(warnings);
         displayRecommendations(recommendations);
 
-    } catch (err) { showError(err.message); console.error(err); }
-    finally { hideLoading(); }
+        // Refresh Recent Scans after a new scan
+        getRecentScans();
+
+    } catch (err) {
+        showError(err.message);
+        console.error(err);
+    } finally { hideLoading(); }
 }
 
+/* ===== Loading/Error/Results UI ===== */
 function showLoading() {
     const resultsSection = document.getElementById("resultsSection");
     if (!resultsSection) return;
@@ -60,13 +75,17 @@ function showError(message) {
     errorDiv.innerText = message;
 }
 
-function hideError() { const errorDiv = document.getElementById("errorMessage"); if (errorDiv) errorDiv.remove(); }
+function hideError() {
+    const errorDiv = document.getElementById("errorMessage");
+    if (errorDiv) errorDiv.remove();
+}
 
 function clearResults() {
     const resultsSection = document.getElementById("resultsSection");
     if (resultsSection) resultsSection.innerHTML = "";
 }
 
+/* ===== Display Scan Results ===== */
 function displayResults(data) {
     document.getElementById("resultsSection").style.display = "block";
     const score = data.risk_score || 0;
@@ -82,7 +101,7 @@ function displayResults(data) {
             <div class="result-details">
                 <p><strong>URL:</strong> <span id="resultUrl">${data.url || "-"}</span></p>
                 <p><strong>Domain:</strong> <span id="resultDomain">${data.domain || "-"}</span></p>
-                <p><strong>Timestamp:</strong> <span id="resultTimestamp">${data.timestamp || "-"}</span></p>
+                <p><strong>Timestamp:</strong> <span id="resultTimestamp">${formatTimestamp(data.timestamp)}</span></p>
             </div>
             <div id="detailedChecks" class="detailed-checks">
                 <h3>Detailed Security Checks</h3>
@@ -120,25 +139,115 @@ function displayDetailedChecks(data) {
 function displayWarnings(warnings) {
     const warningsList = document.getElementById("warnings-list");
     warningsList.innerHTML = "";
-    if (warnings.length === 0) { const li = document.createElement("li"); li.textContent = "No warnings detected"; li.classList.add("clean"); warningsList.appendChild(li); return; }
-    warnings.forEach(w => { const li = document.createElement("li"); li.textContent = `⚠️ ${w}`; warningsList.appendChild(li); });
+    if (!warnings || warnings.length === 0) {
+        const li = document.createElement("li");
+        li.textContent = "No warnings detected";
+        li.classList.add("clean");
+        warningsList.appendChild(li);
+        return;
+    }
+    warnings.forEach(w => {
+        const li = document.createElement("li");
+        li.textContent = `⚠️ ${w}`;
+        warningsList.appendChild(li);
+    });
 }
 
 function displayRecommendations(recommendations) {
     const recList = document.getElementById("recommendations-list");
     recList.innerHTML = "";
-    if (recommendations.length === 0) { const li = document.createElement("li"); li.textContent = "No recommendations needed"; li.classList.add("clean"); recList.appendChild(li); return; }
-    recommendations.forEach(r => { const li = document.createElement("li"); li.textContent = `ℹ️ ${r}`; recList.appendChild(li); });
+    if (!recommendations || recommendations.length === 0) {
+        const li = document.createElement("li");
+        li.textContent = "No recommendations needed";
+        li.classList.add("clean");
+        recList.appendChild(li);
+        return;
+    }
+    recommendations.forEach(r => {
+        const li = document.createElement("li");
+        li.textContent = `ℹ️ ${r}`;
+        recList.appendChild(li);
+    });
 }
 
 function extractWarningsAndRecommendations(data) {
     const warnings = [], recommendations = [];
-    if (!data.checks.ssl?.certificate_valid) { warnings.push("No HTTPS / Invalid SSL certificate"); recommendations.push("Enable HTTPS and fix SSL certificate"); }
+    if (!data.checks.ssl?.certificate_valid) {
+        warnings.push("No HTTPS / Invalid SSL certificate");
+        recommendations.push("Enable HTTPS and fix SSL certificate");
+    }
     const missingHeaders = data.checks.security_headers?.missing_headers || [];
-    if (missingHeaders.length > 0) { warnings.push(`Missing security headers: ${missingHeaders.join(", ")}`); recommendations.push("Add missing security headers"); }
-    if (data.checks.domain_analysis?.is_suspicious) { warnings.push("Suspicious domain detected"); recommendations.push("Check domain carefully"); }
+    if (missingHeaders.length > 0) {
+        warnings.push(`Missing security headers: ${missingHeaders.join(", ")}`);
+        recommendations.push("Add missing security headers");
+    }
+    if (data.checks.domain_analysis?.is_suspicious) {
+        warnings.push("Suspicious domain detected");
+        recommendations.push("Check domain carefully");
+    }
     const advancedWarnings = data.checks.advanced_detection?.warnings || [];
     advancedWarnings.forEach(w => warnings.push(w));
     if (advancedWarnings.length > 0) recommendations.push("Investigate advanced detection issues");
     return { warnings, recommendations };
 }
+
+/* ====== Recent Scans Feature ====== */
+async function getRecentScans() {
+    try {
+        const response = await fetch(SCANS_API_URL);
+        const scans = await response.json();
+        displayScanList(scans.slice(0, 5)); // Show only last 5
+    } catch (error) {
+        console.error("Error fetching recent scans:", error);
+    }
+}
+
+function displayScanList(scans) {
+    const list = document.getElementById('scans-list');
+    list.innerHTML = '';
+
+    scans.forEach(scan => {
+        // Remove trailing dot
+        const cleanUrl = scan.url ? scan.url.replace(/\.$/, '') : "-";
+
+        // Use timestamp or fallback to current time
+        const ts = scan.timestamp ? new Date(scan.timestamp) : new Date();
+        const displayTime = !isNaN(ts) ? ts.toLocaleString() : "Unknown";
+
+        const li = document.createElement('li');
+        li.innerHTML = `<strong>${cleanUrl}</strong> - Risk: <span class="${scan.risk_level.toLowerCase()}">${scan.risk_level}</span> - ${displayTime}`;
+        li.dataset.scanId = scan.id;
+
+        li.addEventListener('click', () => showScanDetails(scan));
+        list.appendChild(li);
+    });
+}
+
+function showScanDetails(scan) {
+    const details = document.getElementById("details-content");
+    const cleanUrl = scan.url ? scan.url.replace(/\.$/, '') : "-";
+    const ts = scan.timestamp ? new Date(scan.timestamp) : new Date();
+    const displayTime = !isNaN(ts) ? ts.toLocaleString() : "Unknown";
+
+    details.innerHTML = `
+        <p><strong>URL:</strong> ${cleanUrl}</p>
+        <p><strong>Risk Level:</strong> ${scan.risk_level}</p>
+        <p><strong>Timestamp:</strong> ${displayTime}</p>
+        <p><strong>Issues:</strong> ${scan.issues && scan.issues.length ? scan.issues.join(', ') : "None"}</p>
+    `;
+    document.getElementById("scan-details").style.display = "block";
+}
+
+document.getElementById("close-details").addEventListener("click", () => {
+    document.getElementById("scan-details").style.display = "none";
+});
+
+/* ===== Helper: Format timestamp for main result ===== */
+function formatTimestamp(ts) {
+    if (!ts) return "Unknown";
+    const date = new Date(ts);
+    return !isNaN(date) ? date.toLocaleString() : "Unknown";
+}
+
+/* ===== Initialize Recent Scans on Page Load ===== */
+window.addEventListener('DOMContentLoaded', getRecentScans);
