@@ -4,13 +4,12 @@ const API_URL = "http://127.0.0.1:8000/api/scan";
 const SCANS_API_URL = "http://127.0.0.1:8000/api/scans"; // For recent scans
 const TIMEOUT = 20000; // 20-second timeout
 
-/* ====== Scan URL Function ====== */
+// ===== Main scan function =====
 async function scanURL() {
     const inputElement = document.getElementById("urlInput");
     if (!inputElement) return alert("Input element not found!");
 
-    // Trim and remove trailing dot from URL
-    let url = inputElement.value.trim().replace(/\.$/, '');
+    const url = inputElement.value.trim();
 
     try { new URL(url); }
     catch (e) { return showError("Invalid URL entered. Please enter a valid URL."); }
@@ -26,10 +25,7 @@ async function scanURL() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ url }),
             signal: controller.signal
-        }).then(res => {
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            return res.json();
-        });
+        }).then(res => { if (!res.ok) throw new Error(`HTTP ${res.status}`); return res.json(); });
 
         const timeoutPromise = new Promise((_, reject) =>
             setTimeout(() => { controller.abort(); reject(new Error("API timeout. Please try again.")); }, TIMEOUT)
@@ -37,23 +33,22 @@ async function scanURL() {
 
         const data = await Promise.race([fetchPromise, timeoutPromise]);
 
+        // Display results
         displayResults(data);
         displayDetailedChecks(data);
-
         const { warnings, recommendations } = extractWarningsAndRecommendations(data);
         displayWarnings(warnings);
         displayRecommendations(recommendations);
 
-        // Refresh Recent Scans after a new scan
-        getRecentScans();
-
     } catch (err) {
         showError(err.message);
         console.error(err);
-    } finally { hideLoading(); }
+    } finally {
+        hideLoading();
+    }
 }
 
-/* ===== Loading/Error/Results UI ===== */
+// ===== Loading spinner =====
 function showLoading() {
     const resultsSection = document.getElementById("resultsSection");
     if (!resultsSection) return;
@@ -75,17 +70,14 @@ function showError(message) {
     errorDiv.innerText = message;
 }
 
-function hideError() {
-    const errorDiv = document.getElementById("errorMessage");
-    if (errorDiv) errorDiv.remove();
-}
+function hideError() { const errorDiv = document.getElementById("errorMessage"); if (errorDiv) errorDiv.remove(); }
 
 function clearResults() {
     const resultsSection = document.getElementById("resultsSection");
     if (resultsSection) resultsSection.innerHTML = "";
 }
 
-/* ===== Display Scan Results ===== */
+// ===== Display Functions =====
 function displayResults(data) {
     document.getElementById("resultsSection").style.display = "block";
     const score = data.risk_score || 0;
@@ -139,7 +131,7 @@ function displayDetailedChecks(data) {
 function displayWarnings(warnings) {
     const warningsList = document.getElementById("warnings-list");
     warningsList.innerHTML = "";
-    if (!warnings || warnings.length === 0) {
+    if (warnings.length === 0) {
         const li = document.createElement("li");
         li.textContent = "No warnings detected";
         li.classList.add("clean");
@@ -156,7 +148,7 @@ function displayWarnings(warnings) {
 function displayRecommendations(recommendations) {
     const recList = document.getElementById("recommendations-list");
     recList.innerHTML = "";
-    if (!recommendations || recommendations.length === 0) {
+    if (recommendations.length === 0) {
         const li = document.createElement("li");
         li.textContent = "No recommendations needed";
         li.classList.add("clean");
@@ -171,20 +163,25 @@ function displayRecommendations(recommendations) {
 }
 
 function extractWarningsAndRecommendations(data) {
-    const warnings = [], recommendations = [];
+    const warnings = [];
+    const recommendations = [];
+
     if (!data.checks.ssl?.certificate_valid) {
         warnings.push("No HTTPS / Invalid SSL certificate");
         recommendations.push("Enable HTTPS and fix SSL certificate");
     }
+
     const missingHeaders = data.checks.security_headers?.missing_headers || [];
     if (missingHeaders.length > 0) {
         warnings.push(`Missing security headers: ${missingHeaders.join(", ")}`);
         recommendations.push("Add missing security headers");
     }
+
     if (data.checks.domain_analysis?.is_suspicious) {
         warnings.push("Suspicious domain detected");
         recommendations.push("Check domain carefully");
     }
+
     const advancedWarnings = data.checks.advanced_detection?.warnings || [];
     advancedWarnings.forEach(w => warnings.push(w));
     if (advancedWarnings.length > 0) recommendations.push("Investigate advanced detection issues");
