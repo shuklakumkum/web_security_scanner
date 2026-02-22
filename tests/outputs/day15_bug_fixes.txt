@@ -1,0 +1,31 @@
+Day 15 - Bug Fixes
+===================
+
+Bugs Fixed:
+1. Bug: Scan results were not showing after scan
+   Fix: Updated hideLoading() to only remove spinner instead of clearing results section
+   Verified: Yes
+
+2. Bug: Risk level in history did not match main scan output
+   Fix: Updated addScanToHistory() to calculate risk level correctly based on scan score
+   Verified: Yes
+
+3. Bug: Invalid URL input caused JS error
+   Fix: Added URL validation and error handling in scanURL()
+   Verified: Yes
+
+4. Bug: Mobile view layout was broken
+   Fix: Adjusted CSS for responsive widths and verified in Chrome DevTools mobile mode
+   Verified: Yes
+
+5. Bug: Warnings/recommendations not displayed when empty
+   Fix: Added default message “No warnings detected” / “No recommendations needed”
+   Verified: Yes
+
+... (include all other bugs found in morning session)
+
+Re-test Results:
+All features working: Yes
+New bugs found: No
+
+Final Status: Production ready

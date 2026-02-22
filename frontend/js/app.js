@@ -25,7 +25,10 @@ async function scanURL() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ url }),
             signal: controller.signal
-        }).then(res => { if (!res.ok) throw new Error(`HTTP ${res.status}`); return res.json(); });
+        }).then(res => {
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            return res.json();
+        });
 
         const timeoutPromise = new Promise((_, reject) =>
             setTimeout(() => { controller.abort(); reject(new Error("API timeout. Please try again.")); }, TIMEOUT)
@@ -33,12 +36,20 @@ async function scanURL() {
 
         const data = await Promise.race([fetchPromise, timeoutPromise]);
 
-        // Display results
+        // ===== Display results =====
         displayResults(data);
         displayDetailedChecks(data);
         const { warnings, recommendations } = extractWarningsAndRecommendations(data);
         displayWarnings(warnings);
         displayRecommendations(recommendations);
+
+        // ===== Update history immediately =====
+        addScanToHistory({
+            url: data.url,
+            risk_level: data.risk_score <= 30 ? "Low" : data.risk_score <= 70 ? "Medium" : "High",
+            timestamp: data.timestamp || new Date().toISOString(),
+            issues: warnings
+        });
 
     } catch (err) {
         showError(err.message);
@@ -56,7 +67,11 @@ function showLoading() {
     resultsSection.innerHTML = `<div class="loading-spinner">Scanning... ⏳</div>`;
 }
 
-function hideLoading() { }
+function hideLoading() {
+    // Only remove spinner, keep results intact
+    const spinner = document.querySelector(".loading-spinner");
+    if (spinner) spinner.remove();
+}
 
 function showError(message) {
     let errorDiv = document.getElementById("errorMessage");
@@ -70,7 +85,10 @@ function showError(message) {
     errorDiv.innerText = message;
 }
 
-function hideError() { const errorDiv = document.getElementById("errorMessage"); if (errorDiv) errorDiv.remove(); }
+function hideError() {
+    const errorDiv = document.getElementById("errorMessage");
+    if (errorDiv) errorDiv.remove();
+}
 
 function clearResults() {
     const resultsSection = document.getElementById("resultsSection");
@@ -79,7 +97,8 @@ function clearResults() {
 
 // ===== Display Functions =====
 function displayResults(data) {
-    document.getElementById("resultsSection").style.display = "block";
+    const resultsSection = document.getElementById("resultsSection");
+    resultsSection.style.display = "block";
     const score = data.risk_score || 0;
     const riskLevel = score <= 30 ? "Low" : score <= 70 ? "Medium" : "High";
 
@@ -111,7 +130,7 @@ function displayResults(data) {
                 <ul id="recommendations-list"></ul>
             </div>
         </div>`;
-    document.getElementById("resultsSection").innerHTML = resultsHTML;
+    resultsSection.innerHTML = resultsHTML;
 }
 
 function displayDetailedChecks(data) {
@@ -188,7 +207,27 @@ function extractWarningsAndRecommendations(data) {
     return { warnings, recommendations };
 }
 
-/* ====== Recent Scans Feature ====== */
+// ===== Add scan to history (fix mismatch) =====
+function addScanToHistory(scan) {
+    const list = document.getElementById('scans-list');
+
+    // Remove duplicates for same URL & timestamp
+    const existing = Array.from(list.children).filter(li => li.dataset.url === scan.url);
+    existing.forEach(el => el.remove());
+
+    const li = document.createElement('li');
+    const ts = scan.timestamp ? new Date(scan.timestamp) : new Date();
+    const displayTime = !isNaN(ts) ? ts.toLocaleString() : "Unknown";
+
+    li.innerHTML = `<strong>${scan.url}</strong> - Risk: <span class="${scan.risk_level.toLowerCase()}">${scan.risk_level}</span> - ${displayTime}`;
+    li.dataset.url = scan.url;
+    li.dataset.scanId = scan.id || "";
+
+    li.addEventListener('click', () => showScanDetails(scan));
+    list.prepend(li);
+}
+
+// ===== Recent Scans Feature =====
 async function getRecentScans() {
     try {
         const response = await fetch(SCANS_API_URL);
@@ -204,10 +243,7 @@ function displayScanList(scans) {
     list.innerHTML = '';
 
     scans.forEach(scan => {
-        // Remove trailing dot
         const cleanUrl = scan.url ? scan.url.replace(/\.$/, '') : "-";
-
-        // Use timestamp or fallback to current time
         const ts = scan.timestamp ? new Date(scan.timestamp) : new Date();
         const displayTime = !isNaN(ts) ? ts.toLocaleString() : "Unknown";
 
@@ -239,12 +275,12 @@ document.getElementById("close-details").addEventListener("click", () => {
     document.getElementById("scan-details").style.display = "none";
 });
 
-/* ===== Helper: Format timestamp for main result ===== */
+// ===== Helper: Format timestamp for main result =====
 function formatTimestamp(ts) {
     if (!ts) return "Unknown";
     const date = new Date(ts);
     return !isNaN(date) ? date.toLocaleString() : "Unknown";
 }
 
-/* ===== Initialize Recent Scans on Page Load ===== */
+// ===== Initialize Recent Scans on Page Load =====
 window.addEventListener('DOMContentLoaded', getRecentScans);
