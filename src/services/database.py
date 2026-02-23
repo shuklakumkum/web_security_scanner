@@ -1,19 +1,25 @@
 import sqlite3
 import json
 from pathlib import Path
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 # ----------------------------
-# Database path
+# Database Path
 # ----------------------------
-DB_PATH = Path("scan_history.db")  # Uses the file we just created
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+DB_PATH = BASE_DIR / "scan_history.db"
 
 # ----------------------------
-# Initialize database (creates table if not exists)
+# Initialize Database
 # ----------------------------
-def init_db():
+def init_database() -> None:
+    """
+    Creates the scan_history table if it does not exist.
+    Safe to run multiple times.
+    """
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
+
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS scan_history (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -26,14 +32,13 @@ def init_db():
             timestamp TEXT
         )
     """)
+
     conn.commit()
     conn.close()
 
-# Initialize once when imported
-init_db()
 
 # ----------------------------
-# Save scan result
+# Save Scan Result
 # ----------------------------
 def save_scan_result(
     url: str,
@@ -44,8 +49,10 @@ def save_scan_result(
     recommendations: List[str],
     timestamp: str
 ) -> int:
+
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
+
     cursor.execute("""
         INSERT INTO scan_history
         (url, domain, risk_score, risk_level, warnings, recommendations, timestamp)
@@ -59,27 +66,34 @@ def save_scan_result(
         json.dumps(recommendations),
         timestamp
     ))
+
     conn.commit()
     scan_id = cursor.lastrowid
     conn.close()
+
     return scan_id
 
+
 # ----------------------------
-# Get recent scans
+# Get Recent Scans
 # ----------------------------
 def get_recent_scans(limit: int = 20) -> List[Dict]:
+
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
+
     cursor.execute("""
         SELECT id, url, domain, risk_score, risk_level, warnings, recommendations, timestamp
         FROM scan_history
         ORDER BY id DESC
         LIMIT ?
     """, (limit,))
+
     rows = cursor.fetchall()
     conn.close()
 
     scans = []
+
     for row in rows:
         scans.append({
             "id": row[0],
@@ -91,19 +105,24 @@ def get_recent_scans(limit: int = 20) -> List[Dict]:
             "recommendations": json.loads(row[6]) if row[6] else [],
             "scan_timestamp": row[7]
         })
+
     return scans
 
+
 # ----------------------------
-# Get scan by ID
+# Get Scan By ID
 # ----------------------------
-def get_scan_by_id(scan_id: int) -> Dict:
+def get_scan_by_id(scan_id: int) -> Optional[Dict]:
+
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
+
     cursor.execute("""
         SELECT id, url, domain, risk_score, risk_level, warnings, recommendations, timestamp
         FROM scan_history
         WHERE id = ?
     """, (scan_id,))
+
     row = cursor.fetchone()
     conn.close()
 
@@ -121,22 +140,27 @@ def get_scan_by_id(scan_id: int) -> Dict:
         "scan_timestamp": row[7]
     }
 
+
 # ----------------------------
-# Get scans by domain
+# Get Scans By Domain
 # ----------------------------
 def get_scans_by_domain(domain: str) -> List[Dict]:
+
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
+
     cursor.execute("""
         SELECT id, url, domain, risk_score, risk_level, warnings, recommendations, timestamp
         FROM scan_history
         WHERE domain = ?
         ORDER BY id DESC
     """, (domain,))
+
     rows = cursor.fetchall()
     conn.close()
 
     scans = []
+
     for row in rows:
         scans.append({
             "id": row[0],
@@ -145,7 +169,8 @@ def get_scans_by_domain(domain: str) -> List[Dict]:
             "risk_score": row[3],
             "risk_level": row[4],
             "warnings": json.loads(row[5]) if row[5] else [],
-            "recommendations": json.loads(row[6]) if row[6] else [],
+            "recommendations": json.loads(row[6]) if row[5] else [],
             "scan_timestamp": row[7]
         })
+
     return scans
