@@ -16,9 +16,7 @@
 
     <main>
 
-        <!-- ========================= -->
         <!-- ABOUT SECTION -->
-        <!-- ========================= -->
         <section class="about-section">
             <h2>About</h2>
             <p>
@@ -29,9 +27,7 @@
             <p><strong>Developer:</strong> Kumkum</p>
         </section>
 
-        <!-- ========================= -->
-        <!-- INSTRUCTIONS SECTION -->
-        <!-- ========================= -->
+        <!-- HOW TO USE SECTION -->
         <section class="instructions-section">
             <h2>How to Use</h2>
             <ol>
@@ -39,7 +35,6 @@
                 <li>Click the Scan button or press Enter</li>
                 <li>Review the risk score and warnings</li>
             </ol>
-
             <h3>Risk Levels</h3>
             <ul>
                 <li><strong>Low</strong> – Website appears safe</li>
@@ -48,56 +43,44 @@
             </ul>
         </section>
 
-        <!-- ========================= -->
-        <!-- URL INPUT SECTION -->
-        <!-- ========================= -->
+        <!-- URL INPUT -->
         <div class="scan-box">
             <input type="text" id="urlInput" placeholder="Enter website URL">
             <button onclick="scanURL()">Scan</button>
         </div>
-
-        <!-- Input Validation Message -->
         <div id="errorMessage" style="color:red; margin-top:10px;"></div>
 
-        <!-- ========================= -->
-        <!-- RESULTS SECTION -->
-        <!-- ========================= -->
-        <section id="resultsSection" class="results-container" style="display:none;">
-            <!-- Scan results will be injected here -->
-        </section>
+        <!-- SCAN RESULTS -->
+        <section id="resultsSection" class="results-container" style="display:none;"></section>
 
-        <!-- ========================= -->
-        <!-- RECENT SCANS SECTION -->
-        <!-- ========================= -->
+        <!-- RECENT SCANS -->
         <section id="recent-scans">
             <h2>Recent Scans</h2>
-            <ul id="scans-list">
-                <!-- Last 5 scans will be populated here -->
-            </ul>
+            <ul id="scans-list"></ul>
         </section>
 
-        <!-- ========================= -->
-        <!-- SCAN DETAILS MODAL -->
-        <!-- ========================= -->
-        <div id="scan-details" style="display:none;">
-            <h3>Scan Details</h3>
-            <div id="details-content"></div>
-            <button id="close-details">Close</button>
+        <!-- MODAL POPUP -->
+        <div id="scan-details" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Scan Details</h3>
+                    <span class="close-modal" id="close-details">✖</span>
+                </div>
+                <div class="modal-body" id="details-content"></div>
+                <div class="modal-footer">
+                    <button class="close-btn" id="close-details-btn">Close</button>
+                </div>
+            </div>
         </div>
 
     </main>
 
-    <!-- ========================= -->
-    <!-- FOOTER -->
-    <!-- ========================= -->
     <footer>
-        © 2026 Web Security Scanner
-        <br>
+        © 2026 Web Security Scanner<br>
         Developed by Kumkum
     </footer>
 
     <script src="js/app.js"></script>
-
 </body>
 
 </html>
