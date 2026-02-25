@@ -101,10 +101,12 @@ def complete_scan(request: URLRequest):
     warnings.extend(domain_result.get("warnings", []))
 
     if domain_result.get("is_suspicious"):
-        recommendations.append("Domain looks similar to a known brand. Verify carefully.")
+        recommendations.append(
+            "Domain looks similar to a known brand. Verify carefully."
+        )
 
     # -------------------------
-    # 3. SSL CHECK (CORRECTED)
+    # 3. SSL CHECK
     # -------------------------
     try:
         ssl_result = analyze_ssl(url) if domain else {
@@ -125,12 +127,16 @@ def complete_scan(request: URLRequest):
     if not has_https:
         risk_score += 20
         warnings.append("Website not using HTTPS")
-        recommendations.append("Avoid entering sensitive data on HTTP websites.")
+        recommendations.append(
+            "Avoid entering sensitive data on HTTP websites."
+        )
 
     if has_https and not valid_cert:
         risk_score += 30
         warnings.append("Invalid or expired SSL certificate")
-        recommendations.append("Fix SSL certificate configuration.")
+        recommendations.append(
+            "Fix SSL certificate configuration."
+        )
 
     # -------------------------
     # 4. SECURITY HEADERS
@@ -144,7 +150,9 @@ def complete_scan(request: URLRequest):
             }
         }
 
-    missing_headers = headers_result.get("analysis", {}).get("missing_headers", [])
+    missing_headers = headers_result.get(
+        "analysis", {}
+    ).get("missing_headers", [])
 
     if len(missing_headers) >= 5:
         risk_score += 20
@@ -154,18 +162,20 @@ def complete_scan(request: URLRequest):
         warnings.append("Some security headers are missing")
 
     # -------------------------
-    # 5. ADVANCED DETECTION
+    # 5. ADVANCED DETECTION (FIXED)
     # -------------------------
     try:
         advanced_result = advanced_scan(url)
     except Exception:
         advanced_result = {
-            "risk_score": 0,
-            "warnings": []
+            "total_risk_score": 0,
+            "risk_level": "Low",
+            "details": {}
         }
 
-    risk_score += advanced_result.get("risk_score", 0)
-    warnings.extend(advanced_result.get("warnings", []))
+    # ✅ Correct key name
+    advanced_risk = advanced_result.get("total_risk_score", 0)
+    risk_score += advanced_risk
 
     # -------------------------
     # LIMIT SCORE
@@ -181,7 +191,9 @@ def complete_scan(request: URLRequest):
         risk_level = "Medium"
     else:
         risk_level = "High"
-        recommendations.append("HIGH RISK: Possible phishing or unsafe website.")
+        recommendations.append(
+            "HIGH RISK: Possible phishing or unsafe website."
+        )
 
     timestamp = datetime.utcnow().isoformat()
 
@@ -190,7 +202,7 @@ def complete_scan(request: URLRequest):
         "domain": domain,
         "risk_score": risk_score,
         "risk_level": risk_level,
-        "is_suspicious": domain_result.get("is_suspicious", False),
+        "is_suspicious": risk_score >= 30,
         "timestamp": timestamp,
         "checks": {
             "url_validation": validation,
